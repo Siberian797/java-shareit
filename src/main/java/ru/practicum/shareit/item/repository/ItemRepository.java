@@ -13,7 +13,7 @@ public interface ItemRepository {
 
     boolean deleteItem(long userId, long itemId);
 
-    List<Item> getAllItems(long UserId);
+    List<Item> getAllItems(long userId);
 
     List<Item> getAllAvailableItemsByText(String text);
 }
