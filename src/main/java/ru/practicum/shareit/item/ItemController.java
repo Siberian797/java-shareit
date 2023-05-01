@@ -50,7 +50,7 @@ public class ItemController {
     @GetMapping
     public List<ItemDto> getAllItems(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId) {
         log.info("GET-items (all) was called.");
-        return itemService.getAllItems();
+        return itemService.getAllItems(userId);
     }
 
     @GetMapping("/search")

@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.repository;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.EmailDuplicateException;
 import ru.practicum.shareit.exception.EmailNotValidException;
+import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.utils.CommonConstants;
 
@@ -21,12 +22,10 @@ public class InMemoryUserRepository implements UserRepository {
     @Override
     public User createUser(User user) {
         if (emails.containsValue(user.getUserMail())) {
-            throw new EmailDuplicateException(String.format(CommonConstants.EMAIL_DUPLICATE_EXCEPTION_MESSAGE,
-                    user.getUserMail()));
+            throw new EmailDuplicateException(user.getUserMail());
         }
         if (user.getUserMail() == null || !validate(user.getUserMail())) {
-            throw new EmailNotValidException(String.format(CommonConstants.EMAIL_DUPLICATE_EXCEPTION_MESSAGE,
-                    user.getUserMail()));
+            throw new EmailNotValidException(user.getUserMail());
         }
 
         user.setUserId(getUniqueUserId());
@@ -38,15 +37,18 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public User readUser(long userId) {
-        return usersMap.get(userId);
+        User user = usersMap.get(userId);
+        if (user == null) {
+            throw new UserNotFoundException(userId);
+        }
+        return user;
     }
 
     @Override
     public User updateUser(long userId, User user) {
         user.setUserId(userId);
         if (emails.containsValue(user.getUserMail()) && !usersMap.get(userId).getUserMail().equals(user.getUserMail())) {
-            throw new EmailDuplicateException(String.format(CommonConstants.EMAIL_DUPLICATE_EXCEPTION_MESSAGE,
-                    user.getUserMail()));
+            throw new EmailDuplicateException(user.getUserMail());
         }
         if (user.getUserName() == null) {
             user.setUserName(usersMap.get(userId).getUserName());
