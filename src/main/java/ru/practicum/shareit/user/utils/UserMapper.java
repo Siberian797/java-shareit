@@ -9,17 +9,17 @@ public class UserMapper {
 
     public UserDto toUserDto(User user) {
         return UserDto.builder()
-                .userId(user.getUserId())
-                .userName(user.getUserName())
-                .userMail(user.getUserMail())
+                .id(user.getUserId())
+                .name(user.getUserName())
+                .email(user.getUserMail())
                 .build();
     }
 
     public User toUser(UserDto userDto) {
         return User.builder()
-                .userId(userDto.getUserId())
-                .userName(userDto.getUserName())
-                .userMail(userDto.getUserMail())
+                .userId(userDto.getId())
+                .userName(userDto.getName())
+                .userMail(userDto.getEmail())
                 .build();
     }
 }

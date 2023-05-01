@@ -17,13 +17,13 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemDto {
-    private long itemId;
+    private long id;
     @NotBlank
-    private String itemName;
+    private String name;
     @NotBlank
-    private String itemDescription;
+    private String description;
     @NotNull
-    private boolean isItemAvailable;
-    private long itemOwner;
-    private ItemRequest itemRequest;
+    private boolean available;
+    private long owner;
+    private ItemRequest request;
 }
