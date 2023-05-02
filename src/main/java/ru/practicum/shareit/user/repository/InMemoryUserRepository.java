@@ -21,16 +21,16 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public User createUser(User user) {
-        if (emails.containsValue(user.getUserMail())) {
-            throw new EmailDuplicateException(user.getUserMail());
+        if (emails.containsValue(user.getEmail())) {
+            throw new EmailDuplicateException(user.getEmail());
         }
-        if (user.getUserMail() == null || !validate(user.getUserMail())) {
-            throw new EmailNotValidException(user.getUserMail());
+        if (user.getEmail() == null || !validate(user.getEmail())) {
+            throw new EmailNotValidException(user.getEmail());
         }
 
-        user.setUserId(getUniqueUserId());
-        usersMap.put(user.getUserId(), user);
-        emails.put(user.getUserId(), user.getUserMail());
+        user.setId(getUniqueUserId());
+        usersMap.put(user.getId(), user);
+        emails.put(user.getId(), user.getEmail());
 
         return user;
     }
@@ -46,18 +46,18 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public User updateUser(long userId, User user) {
-        user.setUserId(userId);
-        if (emails.containsValue(user.getUserMail()) && !usersMap.get(userId).getUserMail().equals(user.getUserMail())) {
-            throw new EmailDuplicateException(user.getUserMail());
+        user.setId(userId);
+        if (emails.containsValue(user.getEmail()) && !usersMap.get(userId).getEmail().equals(user.getEmail())) {
+            throw new EmailDuplicateException(user.getEmail());
         }
-        if (user.getUserName() == null) {
-            user.setUserName(usersMap.get(userId).getUserName());
+        if (user.getName() == null) {
+            user.setName(usersMap.get(userId).getName());
         }
-        if (user.getUserMail() == null) {
-            user.setUserMail(usersMap.get(userId).getUserMail());
+        if (user.getEmail() == null) {
+            user.setEmail(usersMap.get(userId).getEmail());
         }
         usersMap.put(userId, user);
-        emails.put(userId, user.getUserMail());
+        emails.put(userId, user.getEmail());
         return usersMap.get(userId);
     }
 
