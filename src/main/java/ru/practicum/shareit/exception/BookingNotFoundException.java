@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import ru.practicum.shareit.utils.CommonConstants;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class UserNotFoundException extends RuntimeException {
-    public UserNotFoundException(long userId) {
-        super(String.format(CommonConstants.Exceptions.USER_NOT_FOUND_EXCEPTION_MESSAGE, userId));
+public class BookingNotFoundException extends RuntimeException {
+    public BookingNotFoundException(long itemId) {
+        super(String.format(CommonConstants.Exceptions.BOOKING_NOT_FOUND_EXCEPTION_MESSAGE, itemId));
     }
 }

@@ -38,10 +38,10 @@ public class ItemController {
     }
 
     @DeleteMapping("/{itemId}")
-    public boolean deleteItem(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
+    public void deleteItem(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
                               @PathVariable long itemId) {
         log.info("DELETE-items was called.");
-        return itemService.deleteItem(userId, itemId);
+        itemService.deleteItem(userId, itemId);
     }
 
     @GetMapping
@@ -53,6 +53,6 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDto> getAllAvailableItemsByText(@RequestParam String text) {
         log.info("GET-items (available) was called.");
-        return itemService.getAllAvailableItemsByText(text);
+        return itemService.getAvailableItemsByText(text);
     }
 }

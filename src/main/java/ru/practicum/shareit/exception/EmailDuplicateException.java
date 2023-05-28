@@ -7,6 +7,6 @@ import ru.practicum.shareit.utils.CommonConstants;
 @ResponseStatus(HttpStatus.CONFLICT)
 public class EmailDuplicateException extends RuntimeException {
     public EmailDuplicateException(String email) {
-        super(String.format(CommonConstants.EMAIL_DUPLICATE_EXCEPTION_MESSAGE, email));
+        super(String.format(CommonConstants.Exceptions.EMAIL_DUPLICATE_EXCEPTION_MESSAGE, email));
     }
 }

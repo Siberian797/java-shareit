@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import ru.practicum.shareit.utils.CommonConstants;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class EmailNotValidException extends RuntimeException {
-    public EmailNotValidException(String email) {
-        super(String.format(CommonConstants.Exceptions.EMAIL_DUPLICATE_EXCEPTION_MESSAGE, email));
+public class BookingNotValidException extends RuntimeException {
+    public BookingNotValidException(String field) {
+        super(String.format(CommonConstants.Exceptions.BOOKING_NOT_VALID_EXCEPTION_MESSAGE, field));
     }
 }

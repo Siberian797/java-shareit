@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.comment.dto.ResponseDto;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 @Builder
@@ -21,6 +23,9 @@ public class ItemDto {
     private String description;
     @NotNull
     private Boolean available;
-    private long owner;
-    private ItemRequest request;
+    private UserDto owner;
+    private Long request;
+    private ru.practicum.shareit.booking.dto.ItemDto previous;
+    private ru.practicum.shareit.booking.dto.ItemDto next;
+    private List<ResponseDto> comments;
 }
