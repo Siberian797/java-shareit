@@ -111,22 +111,23 @@ public class BookingServiceImpl implements BookingService {
 
         switch (state) {
             case CURRENT:
-                bookings = bookingRepository.findCurrentBookingsByBookerId(userId, currentTime);
+                bookings = bookingRepository.findByBookerIdAndStartLessThanAndEndGreaterThanOrderByStartDesc(userId,
+                        currentTime, currentTime);
                 break;
             case PAST:
-                bookings = bookingRepository.findPastBookingsByBookerId(userId, currentTime);
+                bookings = bookingRepository.findByBookerIdAndEndLessThanOrderByStartDesc(userId, currentTime);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findFutureBookingsByBookerId(userId, currentTime);
+                bookings = bookingRepository.findByBookerIdAndStartGreaterThanOrderByStartDesc(userId, currentTime);
                 break;
             case WAITING:
-                bookings = bookingRepository.findBookingsByBookerIdAndStatus(userId, BookingStatus.WAITING);
+                bookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findBookingsByBookerIdAndStatus(userId, BookingStatus.REJECTED);
+                bookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
                 break;
             default:
-                bookings = bookingRepository.findAllBookingsByBookerId(userId);
+                bookings = bookingRepository.findByBookerIdOrderByStartDesc(userId);
                 break;
         }
 
@@ -142,22 +143,22 @@ public class BookingServiceImpl implements BookingService {
 
         switch (state) {
             case CURRENT:
-                bookings = bookingRepository.findCurrentBookingsByOwnerId(ownerId, currentTime);
+                bookings = bookingRepository.findByItemOwnerIdAndStartLessThanAndEndGreaterThanOrderByStartDesc(ownerId, currentTime, currentTime);
                 break;
             case PAST:
-                bookings = bookingRepository.findPastBookingsByOwnerId(ownerId, currentTime);
+                bookings = bookingRepository.findByItemOwnerIdAndEndLessThanOrderByStartDesc(ownerId, currentTime);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findFutureBookingsByOwnerId(ownerId, currentTime);
+                bookings = bookingRepository.findByItemOwnerIdAndStartGreaterThanOrderByStartDesc(ownerId, currentTime);
                 break;
             case WAITING:
-                bookings = bookingRepository.findBookingsByOwnerIdAndStatus(ownerId, BookingStatus.WAITING);
+                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findBookingsByOwnerIdAndStatus(ownerId, BookingStatus.REJECTED);
+                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
                 break;
             default:
-                bookings = bookingRepository.findAllBookingsByOwnerId(ownerId);
+                bookings = bookingRepository.findByItemOwnerIdOrderByStartDesc(ownerId);
                 break;
         }
 

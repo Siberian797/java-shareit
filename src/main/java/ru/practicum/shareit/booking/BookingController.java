@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -17,52 +18,54 @@ import java.util.Map;
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
+@Slf4j
 public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
-    public ResponseDto createBooking(
-            @RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
-            @Valid @RequestBody RequestDto requestDto
-    ) {
+    @SuppressWarnings(value = "unused")
+    public ResponseDto createBooking(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
+            @Valid @RequestBody RequestDto requestDto) {
+        log.info("POST-bookings was called.");
         return bookingService.createBooking(requestDto, userId);
     }
 
     @GetMapping("/{bookingId}")
-    public ResponseDto readBooking(
-            @RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
-            @PathVariable Long bookingId
-    ) {
+    @SuppressWarnings(value = "unused")
+    public ResponseDto readBooking(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
+            @PathVariable Long bookingId) {
+        log.info("GET-bookings was called.");
         return bookingService.readBooking(bookingId, userId);
     }
 
     @PatchMapping("/{bookingId}")
-    public ResponseDto updateBooking(
-            @RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
+    @SuppressWarnings(value = "unused")
+    public ResponseDto updateBooking(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
             @RequestParam(required = false) boolean approved,
-            @PathVariable long bookingId
-    ) {
+            @PathVariable long bookingId) {
+        log.info("PATCH-bookings was called.");
         return bookingService.updateBooking(bookingId, approved, userId);
     }
 
     @GetMapping
-    public List<ResponseDto> getUserBookings(
-            @RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
-            @RequestParam(required = false, defaultValue = "ALL") BookingState state
-    ) {
+    @SuppressWarnings(value = "unused")
+    public List<ResponseDto> getUserBookings(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
+            @RequestParam(required = false, defaultValue = "ALL") BookingState state) {
+        log.info("GET-user-bookings was called.");
         return bookingService.getBookings(state, userId);
     }
 
     @GetMapping("/owner")
-    public List<ResponseDto> getUserItems(
-            @RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
-            @RequestParam(required = false, defaultValue = "ALL") BookingState state
-    ) {
+    @SuppressWarnings(value = "unused")
+    public List<ResponseDto> getUserItems(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
+            @RequestParam(required = false, defaultValue = "ALL") BookingState state) {
+        log.info("GET-owner-bookings was called.");
         return bookingService.getItems(state, userId);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler
+    @SuppressWarnings(value = "unused")
     public Map<String, String> handleNotExistingFilm(final MethodArgumentTypeMismatchException e) {
         return Map.of("error", "Unknown " + e.getName() + ": " + e.getValue());
     }

@@ -15,6 +15,7 @@ import ru.practicum.shareit.utils.CommonConstants;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,10 +24,9 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final int idCounter = 1;
 
-    private static void validate(String emailStr) {
-        Matcher matcher = CommonConstants.VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
+    private static void validateEmail(String emailStr) {
+        Matcher matcher = Pattern.compile(CommonConstants.VALID_EMAIL_ADDRESS_REGEX).matcher(emailStr);
         if (!matcher.matches()) {
             throw new EmailNotValidException(emailStr);
         }
@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService {
     public UserDto createUser(UserDto userDto) {
         if (userDto.getEmail() == null)
             throw new EmailNotValidException("null");
-        validate(userDto.getEmail());
+        validateEmail(userDto.getEmail());
         try {
             User newUser = userRepository.save(userMapper.toUser(userDto));
             return userMapper.toUserDto(newUser);
