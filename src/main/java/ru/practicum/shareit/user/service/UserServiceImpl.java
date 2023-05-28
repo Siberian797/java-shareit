@@ -12,9 +12,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.utils.UserMapper;
 import ru.practicum.shareit.utils.CommonConstants;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
@@ -25,13 +23,21 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final int idCounter = 1;
 
-    private final Map<Long, String> emails = new HashMap<>();
-    private int idCounter = 1;
+    private static void validate(String emailStr) {
+        Matcher matcher = CommonConstants.VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
+        if (!matcher.matches()) {
+            throw new EmailNotValidException(emailStr);
+        }
+    }
 
     @Override
     @Transactional
     public UserDto createUser(UserDto userDto) {
+        if (userDto.getEmail() == null)
+            throw new EmailNotValidException("null");
+        validate(userDto.getEmail());
         try {
             User newUser = userRepository.save(userMapper.toUser(userDto));
             return userMapper.toUserDto(newUser);
@@ -65,21 +71,11 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteUser(long userId) {
-        emails.remove(userId);
         userRepository.deleteById(userId);
     }
 
     @Override
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream().map(userMapper::toUserDto).collect(Collectors.toList());
-    }
-
-    private static boolean validate(String emailStr) {
-        Matcher matcher = CommonConstants.VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
-        return matcher.matches();
-    }
-
-    private int getUniqueUserId() {
-        return idCounter++;
     }
 }

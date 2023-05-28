@@ -10,16 +10,16 @@ import ru.practicum.shareit.user.dto.UserDto;
 public class CommentMapper {
     public ResponseDto toResponseDto(Comment comment, UserDto authorDTO) {
         return ResponseDto.builder()
-            .id(comment.getId())
-            .created(comment.getCreated())
-            .text(comment.getText())
-            .author(authorDTO.getName())
-            .build();
+                .id(comment.getId())
+                .created(comment.getCreated())
+                .text(comment.getText())
+                .authorName(authorDTO.getName())
+                .build();
     }
 
     public Comment toComment(RequestDto requestDto) {
         return Comment.builder()
-            .text(requestDto.getText())
-            .build();
+                .text(requestDto.getText())
+                .build();
     }
 }

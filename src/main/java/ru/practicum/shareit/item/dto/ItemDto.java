@@ -25,7 +25,7 @@ public class ItemDto {
     private Boolean available;
     private UserDto owner;
     private Long request;
-    private ru.practicum.shareit.booking.dto.ItemDto previous;
-    private ru.practicum.shareit.booking.dto.ItemDto next;
+    private ru.practicum.shareit.booking.dto.ItemDto lastBooking;
+    private ru.practicum.shareit.booking.dto.ItemDto nextBooking;
     private List<ResponseDto> comments;
 }

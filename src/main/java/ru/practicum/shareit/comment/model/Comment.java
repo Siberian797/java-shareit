@@ -33,6 +33,6 @@ public class Comment {
     @JoinColumn(name = "author_id")
     private User author;
 
-    @Column
+    @Column(name = "created_time")
     private LocalDateTime created;
 }

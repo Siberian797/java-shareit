@@ -30,7 +30,7 @@ create table if not exists items (
 
 create table if not exists bookings (
     id serial primary key,
-    begin_date timestamp not null,
+    start_date timestamp not null,
     end_date timestamp not null,
     item_id bigint not null,
     booker_id bigint not null,

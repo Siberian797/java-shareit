@@ -14,6 +14,6 @@ import java.time.LocalDateTime;
 public class ResponseDto {
     private Integer id;
     private String text;
-    private String author;
+    private String authorName;
     private LocalDateTime created;
 }

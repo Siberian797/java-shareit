@@ -48,16 +48,29 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemDto createItem(ItemDto itemDto, long userId) {
+        if (itemDto.getAvailable() == null) {
+            throw new ItemNotValidException("available");
+        }
+        if (itemDto.getName().isBlank()) {
+            throw new ItemNotValidException("name");
+        }
+        if (itemDto.getDescription() == null) {
+            throw new ItemNotValidException("description");
+        }
         User user = getUser(userId);
         return itemMapper.toItemDto(itemRepository.save(itemMapper.toItem(itemDto, user)), userMapper.toUserDto(user));
     }
 
     @Override
-    public ItemDto readItem(long itemId) {
+    public ItemDto readItem(long itemId, long requesterId) {
         Item item = getItem(itemId);
-        UserDto userDto = userMapper.toUserDto(item.getOwner());
 
-        return itemMapper.toItemDto(item, userDto);
+        UserDto ownerDTO = userMapper.toUserDto(item.getOwner());
+        ItemDto itemDTO = itemMapper.toItemDto(item, ownerDTO);
+        setBookingsToDTO(itemDTO, requesterId);
+        setCommentsToDTO(itemDTO);
+
+        return itemDTO;
     }
 
     @Override
@@ -139,7 +152,9 @@ public class ItemServiceImpl implements ItemService {
         comment.setAuthor(user);
         comment.setCreated(LocalDateTime.now());
 
-        return commentMapper.toResponseDto(commentRepository.save(comment), userMapper.toUserDto(user));
+        ResponseDto responseDto = commentMapper.toResponseDto(commentRepository.save(comment), userMapper.toUserDto(user));
+
+        return responseDto;
     }
 
     private User getUser(long userId) {
@@ -157,21 +172,21 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void setBookingsToDTO(ItemDto itemDTO, Long requestUserId) {
-        if (itemDTO.getOwner().getId() == requestUserId) {
+        if (Objects.equals(itemDTO.getOwner().getId(), requestUserId)) {
             List<Booking> bookings = bookingRepository.findByItemIdOrderByIdDesc(itemDTO.getId());
 
 
             Booking lastBooking =
                     bookings.stream().filter(booking -> !booking.getStatus().equals(BookingStatus.REJECTED))
-                            .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now())).findFirst().orElse(null);
+                            .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now().plusHours(1))).findFirst().orElse(null);
 
             Booking nextBooking =
                     bookings.stream().filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED))
                             .filter(booking -> booking.getStart().isAfter(LocalDateTime.now())).findFirst().orElse(null);
 
-            itemDTO.setPrevious(Objects.isNull(lastBooking) ? null :
+            itemDTO.setLastBooking(Objects.isNull(lastBooking) ? null :
                     bookingMapper.toItemResponseDto(lastBooking, userMapper.toUserDto(lastBooking.getBooker())));
-            itemDTO.setNext(Objects.isNull(nextBooking) ? null :
+            itemDTO.setNextBooking(Objects.isNull(nextBooking) ? null :
                     bookingMapper.toItemResponseDto(nextBooking, userMapper.toUserDto(nextBooking.getBooker())));
         }
     }

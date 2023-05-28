@@ -3,10 +3,13 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.comment.dto.RequestDto;
+import ru.practicum.shareit.comment.dto.ResponseDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.utils.CommonConstants;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -24,9 +27,10 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto readItem(@PathVariable long itemId) {
+    public ItemDto readItem(@PathVariable long itemId,
+                            @RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long requesterId) {
         log.info("GET-items was called.");
-        return itemService.readItem(itemId);
+        return itemService.readItem(itemId, requesterId);
     }
 
     @PatchMapping("/{itemId}")
@@ -39,7 +43,7 @@ public class ItemController {
 
     @DeleteMapping("/{itemId}")
     public void deleteItem(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
-                              @PathVariable long itemId) {
+                           @PathVariable long itemId) {
         log.info("DELETE-items was called.");
         itemService.deleteItem(userId, itemId);
     }
@@ -54,5 +58,14 @@ public class ItemController {
     public List<ItemDto> getAllAvailableItemsByText(@RequestParam String text) {
         log.info("GET-items (available) was called.");
         return itemService.getAvailableItemsByText(text);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public ResponseDto addComment(
+            @RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
+            @PathVariable long itemId,
+            @Valid @RequestBody RequestDto commentRequestDto
+    ) {
+        return itemService.addComment(userId, itemId, commentRequestDto);
     }
 }
