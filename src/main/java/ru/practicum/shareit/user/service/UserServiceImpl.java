@@ -25,13 +25,6 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-    private static void validateEmail(String emailStr) {
-        Matcher matcher = Pattern.compile(CommonConstants.VALID_EMAIL_ADDRESS_REGEX).matcher(emailStr);
-        if (!matcher.matches()) {
-            throw new EmailNotValidException(emailStr);
-        }
-    }
-
     @Override
     @Transactional
     public UserDto createUser(UserDto userDto) {
@@ -77,5 +70,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream().map(userMapper::toUserDto).collect(Collectors.toList());
+    }
+
+    private static void validateEmail(String emailStr) {
+        Matcher matcher = Pattern.compile(CommonConstants.VALID_EMAIL_ADDRESS_REGEX).matcher(emailStr);
+        if (!matcher.matches()) {
+            throw new EmailNotValidException(emailStr);
+        }
     }
 }

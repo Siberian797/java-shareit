@@ -26,6 +26,7 @@ import ru.practicum.shareit.user.utils.UserMapper;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -117,7 +118,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getAvailableItemsByText(String text) {
         if (text.isBlank()) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         List<ItemDto> itemDtos = new ArrayList<>();
         for (Item item : itemRepository.findByNameLikeIgnoreCaseOrDescriptionLikeIgnoreCaseAndAvailableOrderByIdDesc(

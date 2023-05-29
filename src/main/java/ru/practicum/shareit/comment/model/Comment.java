@@ -1,16 +1,14 @@
 package ru.practicum.shareit.comment.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,7 +20,6 @@ public class Comment {
     @Column(name = "id")
     private Integer id;
 
-    @Column
     private String text;
 
     @ManyToOne(fetch = FetchType.LAZY)
