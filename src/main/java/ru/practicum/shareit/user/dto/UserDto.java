@@ -19,6 +19,9 @@ public class UserDto {
     @Email(groups = {Create.class, Update.class}, regexp = CommonConstants.VALID_EMAIL_ADDRESS_REGEX)
     private String email;
 
-    public interface Create {}
-    public interface Update {}
+    public interface Create {
+    }
+
+    public interface Update {
+    }
 }
