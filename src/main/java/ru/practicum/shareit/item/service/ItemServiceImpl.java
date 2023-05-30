@@ -79,12 +79,9 @@ public class ItemServiceImpl implements ItemService {
                 .id(itemId)
                 .owner(oldItem.getOwner())
                 .request(oldItem.getRequest())
-                .name(itemDto.getName() == null ? oldItem.getName()
-                        : itemDto.getName().isBlank() ? oldItem.getName()
-                        : itemDto.getName())
-                .description(itemDto.getDescription() == null ? oldItem.getDescription()
-                        : itemDto.getDescription().isBlank() ? oldItem.getDescription()
-                        : itemDto.getDescription())
+                .name(itemDto.getName() == null || itemDto.getName().isBlank() ? oldItem.getName() : itemDto.getName())
+                .description(itemDto.getDescription() == null || itemDto.getDescription().isBlank() ?
+                        oldItem.getDescription() : itemDto.getDescription())
                 .available(Objects.requireNonNullElse(itemDto.getAvailable(), oldItem.getAvailable()))
                 .build();
 

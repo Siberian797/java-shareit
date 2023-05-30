@@ -14,10 +14,12 @@ import javax.validation.constraints.Size;
 @Builder
 public class UserDto {
     private long id;
-    @NotBlank
+    @NotBlank(groups = Create.class)
     private String name;
-    @NotBlank
+    @NotBlank(groups = {Create.class})
     @Email(regexp = CommonConstants.VALID_EMAIL_ADDRESS_REGEX)
     @Size(min = 1)
     private String email;
+
+    public interface Create {}
 }

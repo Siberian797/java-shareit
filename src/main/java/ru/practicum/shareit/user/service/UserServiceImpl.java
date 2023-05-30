@@ -53,12 +53,8 @@ public class UserServiceImpl implements UserService {
 
         User updatedUser = User.builder()
                 .id(userId)
-                .name(userDto.getName() == null ? oldUser.getName()
-                        : userDto.getName().isBlank() ? oldUser.getName()
-                        : userDto.getName())
-                .email(userDto.getEmail() == null ? oldUser.getEmail()
-                        : userDto.getEmail().isBlank() ? oldUser.getEmail()
-                        : userDto.getEmail())
+                .name(userDto.getName() == null || userDto.getName().isBlank() ? oldUser.getName() : userDto.getName())
+                .email(userDto.getEmail() == null || userDto.getEmail().isBlank() ? oldUser.getEmail() : userDto.getEmail())
                 .build();
 
         return createUser(userMapper.toUserDto(updatedUser));
