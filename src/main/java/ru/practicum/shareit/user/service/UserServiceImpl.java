@@ -13,7 +13,6 @@ import ru.practicum.shareit.user.utils.UserMapper;
 import ru.practicum.shareit.utils.CommonConstants;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -54,8 +53,12 @@ public class UserServiceImpl implements UserService {
 
         User updatedUser = User.builder()
                 .id(userId)
-                .name(Objects.requireNonNullElse(userDto.getName(), oldUser.getName()))
-                .email(Objects.requireNonNullElse(userDto.getEmail(), oldUser.getEmail()))
+                .name(userDto.getName() == null ? oldUser.getName()
+                        : userDto.getName().isBlank() ? oldUser.getName()
+                        : userDto.getName())
+                .email(userDto.getEmail() == null ? oldUser.getEmail()
+                        : userDto.getEmail().isBlank() ? oldUser.getEmail()
+                        : userDto.getEmail())
                 .build();
 
         return createUser(userMapper.toUserDto(updatedUser));

@@ -7,8 +7,8 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.status.BookingStatus;
 import ru.practicum.shareit.booking.utils.BookingMapper;
-import ru.practicum.shareit.comment.dto.RequestDto;
-import ru.practicum.shareit.comment.dto.ResponseDto;
+import ru.practicum.shareit.comment.dto.CommentRequestDto;
+import ru.practicum.shareit.comment.dto.CommentResponseDto;
 import ru.practicum.shareit.comment.repository.CommentRepository;
 import ru.practicum.shareit.comment.utils.CommentMapper;
 import ru.practicum.shareit.exception.ItemNotFoundException;
@@ -16,6 +16,7 @@ import ru.practicum.shareit.exception.ItemNotValidException;
 import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.exception.UserNotValidException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.utils.ItemMapper;
@@ -25,11 +26,9 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.utils.UserMapper;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.*;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -47,18 +46,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDto createItem(ItemDto itemDto, long userId) {
-        if (itemDto.getAvailable() == null) {
-            throw new ItemNotValidException("available");
-        }
-        if (itemDto.getName().isBlank()) {
-            throw new ItemNotValidException("name");
-        }
-        if (itemDto.getDescription() == null) {
-            throw new ItemNotValidException("description");
-        }
+    public ItemDto createItem(ItemRequestDto itemRequestDto, long userId) {
         User user = getUser(userId);
-        return itemMapper.toItemDto(itemRepository.save(itemMapper.toItem(itemDto, user)), userMapper.toUserDto(user));
+        return itemMapper.toItemDto(itemRepository.save(itemMapper.toItem(itemRequestDto, user)), userMapper.toUserDto(user));
     }
 
     @Override
@@ -84,8 +74,12 @@ public class ItemServiceImpl implements ItemService {
                 .id(itemId)
                 .owner(oldItem.getOwner())
                 .request(oldItem.getRequest())
-                .name(Objects.requireNonNullElse(itemDto.getName(), oldItem.getName()))
-                .description(Objects.requireNonNullElse(itemDto.getDescription(), oldItem.getDescription()))
+                .name(itemDto.getName() == null ? oldItem.getName()
+                        : itemDto.getName().isBlank() ? oldItem.getName()
+                        : itemDto.getName())
+                .description(itemDto.getDescription() == null ? oldItem.getDescription()
+                        : itemDto.getDescription().isBlank() ? oldItem.getDescription()
+                        : itemDto.getDescription())
                 .available(Objects.requireNonNullElse(itemDto.getAvailable(), oldItem.getAvailable()))
                 .build();
 
@@ -125,8 +119,6 @@ public class ItemServiceImpl implements ItemService {
                 text, true)) {
             UserDto userDto = userMapper.toUserDto(item.getOwner());
             ItemDto itemDto = itemMapper.toItemDto(item, userDto);
-
-            setBookings(itemDto, item.getOwner().getId());
             itemDtos.add(itemDto);
         }
         return itemDtos;
@@ -134,7 +126,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ResponseDto addComment(Long userId, Long itemId, RequestDto requestDto) {
+    public CommentResponseDto addComment(Long userId, Long itemId, CommentRequestDto commentRequestDto) {
         User user = getUser(userId);
         Item item = getItem(itemId);
 
@@ -147,7 +139,7 @@ public class ItemServiceImpl implements ItemService {
         }
 
         return commentMapper.toResponseDto(commentRepository.save(
-                commentMapper.toComment(requestDto, item, user, LocalDateTime.now())), userMapper.toUserDto(user));
+                commentMapper.toComment(commentRequestDto, item, user, LocalDateTime.now())), userMapper.toUserDto(user));
     }
 
     private User getUser(long userId) {
@@ -188,6 +180,6 @@ public class ItemServiceImpl implements ItemService {
     private void setComments(ItemDto itemDto) {
         itemDto.setComments(commentRepository.findByItemId(itemDto.getId()).stream()
                 .map(comment -> commentMapper.toResponseDto(comment, userMapper.toUserDto(comment.getAuthor())))
-                .collect(Collectors.toList()));
+                .collect(toList()));
     }
 }

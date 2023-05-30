@@ -3,8 +3,8 @@ package ru.practicum.shareit.booking.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.dto.RequestDto;
-import ru.practicum.shareit.booking.dto.ResponseDto;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
+import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.status.BookingState;
@@ -35,19 +35,19 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public ResponseDto createBooking(RequestDto requestDto, long userId) {
+    public BookingResponseDto createBooking(BookingRequestDto bookingRequestDto, long userId) {
         User user = getValidUser(userId);
-        Item item = itemRepository.findById(requestDto.getItemId()).orElseThrow(() -> new ItemNotFoundException(requestDto.getItemId()));
+        Item item = itemRepository.findById(bookingRequestDto.getItemId()).orElseThrow(() -> new ItemNotFoundException(bookingRequestDto.getItemId()));
 
         if (Boolean.FALSE.equals(item.getAvailable())) {
             throw new ItemNotValidException("available");
         }
 
-        if (requestDto.getStart().isAfter(requestDto.getEnd())) {
+        if (bookingRequestDto.getStart().isAfter(bookingRequestDto.getEnd())) {
             throw new ItemNotValidException("start");
         }
 
-        if (requestDto.getStart().equals(requestDto.getEnd())) {
+        if (bookingRequestDto.getStart().equals(bookingRequestDto.getEnd())) {
             throw new ItemNotValidException("start");
         }
 
@@ -55,7 +55,7 @@ public class BookingServiceImpl implements BookingService {
             throw new UserNotFoundException(userId);
         }
 
-        Booking booking = bookingMapper.toBooking(requestDto);
+        Booking booking = bookingMapper.toBooking(bookingRequestDto);
         booking.setStatus(BookingStatus.WAITING);
         booking.setBooker(user);
         booking.setItem(item);
@@ -66,7 +66,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public ResponseDto readBooking(long bookingId, long userId) {
+    public BookingResponseDto readBooking(long bookingId, long userId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new BookingNotFoundException(bookingId));
 
         if (booking.getBooker().getId().equals(userId) ||
@@ -79,7 +79,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public ResponseDto updateBooking(
+    public BookingResponseDto updateBooking(
             long bookingId, boolean approved, long userId
     ) {
         getValidUser(userId);
@@ -103,7 +103,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<ResponseDto> getBookings(BookingState state, long userId) {
+    public List<BookingResponseDto> getBookings(BookingState state, long userId) {
         getValidUser(userId);
         LocalDateTime currentTime = LocalDateTime.now();
 
@@ -135,7 +135,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<ResponseDto> getItems(BookingState state, long ownerId) {
+    public List<BookingResponseDto> getItems(BookingState state, long ownerId) {
         getValidUser(ownerId);
 
         List<Booking> bookings;
@@ -169,7 +169,7 @@ public class BookingServiceImpl implements BookingService {
         return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
     }
 
-    private ResponseDto getBookingResponseDto(Booking booking) {
+    private BookingResponseDto getBookingResponseDto(Booking booking) {
         return bookingMapper.toResponseDto(booking, userMapper.toUserDto(booking.getBooker()),
                 itemMapper.toItemDto(booking.getItem(), userMapper.toUserDto(booking.getItem().getOwner())));
     }

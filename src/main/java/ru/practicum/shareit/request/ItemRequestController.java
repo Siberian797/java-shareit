@@ -2,9 +2,10 @@ package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.comment.dto.RequestDto;
-import ru.practicum.shareit.comment.dto.ResponseDto;
+import ru.practicum.shareit.comment.dto.CommentRequestDto;
+import ru.practicum.shareit.comment.dto.CommentResponseDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.utils.CommonConstants;
 
@@ -23,7 +24,7 @@ public class ItemRequestController {
     @PostMapping
     @SuppressWarnings(value = "unused")
     public ItemDto createItem(
-            @RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId, @RequestBody ItemDto itemDto) {
+            @RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId, @RequestBody ItemRequestDto itemDto) {
         return itemService.createItem(itemDto, userId);
     }
 
@@ -61,8 +62,8 @@ public class ItemRequestController {
 
     @PostMapping("/{itemId}/comment")
     @SuppressWarnings(value = "unused")
-    public ResponseDto addComment(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
-                                  @PathVariable long itemId, @Valid @RequestBody RequestDto commentRequestDto) {
+    public CommentResponseDto addComment(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
+                                         @PathVariable long itemId, @Valid @RequestBody CommentRequestDto commentRequestDto) {
         return itemService.addComment(userId, itemId, commentRequestDto);
     }
 }

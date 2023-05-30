@@ -2,7 +2,7 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.comment.dto.ResponseDto;
+import ru.practicum.shareit.comment.dto.CommentResponseDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.constraints.NotBlank;
@@ -26,5 +26,5 @@ public class ItemDto {
     private Long request;
     private BookingDto lastBooking;
     private BookingDto nextBooking;
-    private List<ResponseDto> comments;
+    private List<CommentResponseDto> comments;
 }
