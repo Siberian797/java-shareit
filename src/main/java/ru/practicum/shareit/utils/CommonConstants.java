@@ -9,14 +9,8 @@ public class CommonConstants {
             + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
 
     public interface Exceptions {
-        String EMAIL_DUPLICATE_EXCEPTION_MESSAGE = "Email %s is invalid";
-        String USER_NOT_FOUND_EXCEPTION_MESSAGE = "User with id %d was not found";
-        String USER_NOT_VALID_EXCEPTION_MESSAGE = "User with id %d doesn't possess this item";
-        String BOOKING_NOT_FOUND_EXCEPTION_MESSAGE = "Booking with id %d was not found";
-        String BOOKING_NOT_VALID_EXCEPTION_MESSAGE = "Booking with field %s is invalid";
-        String COMMENT_NOT_FOUND_EXCEPTION_MESSAGE = "Comment with id %d was not found";
-        String COMMENT_NOT_VALID_EXCEPTION_MESSAGE = "Comment with field %s is invalid";
-        String ITEM_NOT_FOUND_EXCEPTION_MESSAGE = "Item with id %d was not found";
-        String ITEM_NOT_VALID_EXCEPTION_MESSAGE = "Check out the field %s";
+        String ENTITY_DUPLICATE_EXCEPTION_MESSAGE = "Entity %s has duplicated field %s";
+        String ENTITY_NOT_VALID_EXCEPTION_MESSAGE = "Entity %s has invalid field %s";
+        String ENTITY_NOT_FOUND_EXCEPTION_MESSAGE = "Entity %s with id %d was not found";
     }
 }

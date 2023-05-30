@@ -13,10 +13,7 @@ import ru.practicum.shareit.comment.dto.CommentResponseDto;
 import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.comment.repository.CommentRepository;
 import ru.practicum.shareit.comment.utils.CommentMapper;
-import ru.practicum.shareit.exception.ItemNotFoundException;
-import ru.practicum.shareit.exception.ItemNotValidException;
-import ru.practicum.shareit.exception.UserNotFoundException;
-import ru.practicum.shareit.exception.UserNotValidException;
+import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.model.Item;
@@ -62,7 +59,7 @@ public class ItemServiceImpl implements ItemService {
 
         UserDto userDto = userMapper.toUserDto(item.getOwner());
         ItemDto itemDto = itemMapper.toItemDto(item, userDto);
-        setBookings(itemDto, requesterId, bookings.get(item));
+        setBookings(itemDto, requesterId, bookings.get(item), LocalDateTime.now());
         setComments(itemDto, comments.get(item));
 
         return itemDto;
@@ -106,10 +103,10 @@ public class ItemServiceImpl implements ItemService {
         List<ItemDto> itemDtos = new ArrayList<>();
         for (Item item : items) {
             ItemDto itemDto = itemMapper.toItemDto(item, userDto);
-            setBookings(itemDto, userDto.getId(), bookings.get(item));
+            setBookings(itemDto, userDto.getId(), bookings.get(item), LocalDateTime.now());
             setComments(itemDto, comments.get(item));
-            itemDto.setComments(comments.get(item) == null ? null :
-                    comments.get(item).stream().map(e -> commentMapper.toResponseDto(e, userDto)).collect(toList()));
+            itemDto.setComments(comments.getOrDefault(item,
+                    List.of()).stream().map(e -> commentMapper.toResponseDto(e, userDto)).collect(toList()));
             itemDtos.add(itemDto);
         }
         return itemDtos;
@@ -136,10 +133,9 @@ public class ItemServiceImpl implements ItemService {
         User user = getUser(userId);
         Item item = getItem(itemId);
 
-        List<Booking> bookings = bookingRepository.findByItemIdAndBookerIdAndEndLessThanAndStatus(itemId, userId,
-                        LocalDateTime.now(), BookingStatus.APPROVED);
-        if (bookings.isEmpty()) {
-            throw new ItemNotValidException(item.getName());
+        if (!bookingRepository.existsByItemIdAndBookerIdAndEndLessThanAndStatus(itemId, userId, LocalDateTime.now(),
+                BookingStatus.APPROVED)) {
+            throw new EntityNotValidException("item", "bookings");
         }
 
         return commentMapper.toResponseDto(commentRepository.save(
@@ -147,27 +143,27 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private User getUser(long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        return userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("user", userId));
     }
 
     private Item getItem(Long itemId) {
-        return itemRepository.findById(itemId).orElseThrow(() -> new ItemNotFoundException(itemId));
+        return itemRepository.findById(itemId).orElseThrow(() -> new EntityNotFoundException("item", itemId));
     }
 
     private void validateOwner(Long userId, Item item) {
         if (!Objects.equals(item.getOwner().getId(), userId)) {
-            throw new UserNotValidException(userId);
+            throw new EntityNotValidException("user", "id");
         }
     }
 
-    private void setBookings(ItemDto itemDto, Long requestUserId, List<Booking> bookings) {
+    private void setBookings(ItemDto itemDto, Long requestUserId, List<Booking> bookings, LocalDateTime now) {
         if (Objects.equals(itemDto.getOwner().getId(), requestUserId)) {
             Booking lastBooking = bookings == null ? null :
-                    bookings.stream().filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
+                    bookings.stream().filter(booking -> !booking.getStart().isAfter(now))
                             .reduce((first, second) -> second).orElse(null);
 
             Booking nextBooking = bookings == null ? null :
-                    bookings.stream().filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
+                    bookings.stream().filter(booking -> booking.getStart().isAfter(now))
                             .findFirst().orElse(null);
 
             itemDto.setLastBooking(Objects.isNull(lastBooking) ? null :

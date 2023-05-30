@@ -7,7 +7,6 @@ import ru.practicum.shareit.utils.CommonConstants;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 
 @Getter
 @Setter
@@ -17,9 +16,9 @@ public class UserDto {
     @NotBlank(groups = Create.class)
     private String name;
     @NotBlank(groups = {Create.class})
-    @Email(regexp = CommonConstants.VALID_EMAIL_ADDRESS_REGEX)
-    @Size(min = 1)
+    @Email(groups = {Create.class, Update.class}, regexp = CommonConstants.VALID_EMAIL_ADDRESS_REGEX)
     private String email;
 
     public interface Create {}
+    public interface Update {}
 }

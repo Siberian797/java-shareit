@@ -37,22 +37,23 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingResponseDto createBooking(BookingRequestDto bookingRequestDto, long userId) {
         User user = getValidUser(userId);
-        Item item = itemRepository.findById(bookingRequestDto.getItemId()).orElseThrow(() -> new ItemNotFoundException(bookingRequestDto.getItemId()));
+        Item item = itemRepository.findById(bookingRequestDto.getItemId()).orElseThrow(()
+                -> new EntityNotFoundException("item", bookingRequestDto.getItemId()));
 
         if (Boolean.FALSE.equals(item.getAvailable())) {
-            throw new ItemNotValidException("available");
+            throw new EntityNotValidException("item", "available");
         }
 
         if (bookingRequestDto.getStart().isAfter(bookingRequestDto.getEnd())) {
-            throw new ItemNotValidException("start");
+            throw new EntityNotValidException("item", "start");
         }
 
         if (bookingRequestDto.getStart().equals(bookingRequestDto.getEnd())) {
-            throw new ItemNotValidException("start");
+            throw new EntityNotValidException("item", "start");
         }
 
         if (item.getOwner().getId().equals(userId)) {
-            throw new UserNotFoundException(userId);
+            throw new EntityNotFoundException("user", userId);
         }
 
         Booking booking = bookingMapper.toBooking(bookingRequestDto);
@@ -67,34 +68,34 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingResponseDto readBooking(long bookingId, long userId) {
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new BookingNotFoundException(bookingId));
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(()
+                -> new EntityNotFoundException("booking", bookingId));
 
         if (booking.getBooker().getId().equals(userId) ||
                 booking.getItem().getOwner().getId().equals(userId)) {
             return getBookingResponseDto(booking);
         }
 
-        throw new BookingNotFoundException(bookingId);
+        throw new EntityNotFoundException("booking", bookingId);
     }
 
     @Override
     @Transactional
-    public BookingResponseDto updateBooking(
-            long bookingId, boolean approved, long userId
-    ) {
+    public BookingResponseDto updateBooking(long bookingId, boolean approved, long userId) {
         getValidUser(userId);
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new BookingNotFoundException(bookingId));
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(()
+                -> new EntityNotFoundException("booking", bookingId));
 
         if (!booking.getStatus().equals(BookingStatus.WAITING)) {
-            throw new BookingNotValidException("status");
+            throw new EntityNotValidException("booking", "status");
         }
 
         if (booking.getBooker().getId().equals(userId)) {
-            throw new BookingNotFoundException(bookingId);
+            throw new EntityNotFoundException("booking", bookingId);
         }
 
         if (!booking.getItem().getOwner().getId().equals(userId)) {
-            throw new BookingNotValidException("item");
+            throw new EntityNotValidException("booking", "item");
         }
 
         booking.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
@@ -166,7 +167,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private User getValidUser(long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        return userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("user", userId));
     }
 
     private BookingResponseDto getBookingResponseDto(Booking booking) {

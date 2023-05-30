@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -33,7 +32,7 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     @SuppressWarnings("unused")
-    public UserDto updateUser(@Valid @RequestBody UserDto userDto, @PathVariable long userId) {
+    public UserDto updateUser(@Validated(UserDto.Update.class) @RequestBody UserDto userDto, @PathVariable long userId) {
         log.info("PATCH-users was called.");
         return userService.updateUser(userDto, userId);
     }

@@ -3,18 +3,14 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.exception.EmailDuplicateException;
-import ru.practicum.shareit.exception.EmailNotValidException;
-import ru.practicum.shareit.exception.UserNotFoundException;
+import ru.practicum.shareit.exception.EntityDuplicateException;
+import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.utils.UserMapper;
-import ru.practicum.shareit.utils.CommonConstants;
 
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,21 +23,18 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto createUser(UserDto userDto) {
-        if (userDto.getEmail() == null)
-            throw new EmailNotValidException("null");
-        validateEmail(userDto.getEmail());
         try {
             User newUser = userRepository.save(userMapper.toUser(userDto));
             return userMapper.toUserDto(newUser);
-        } catch (Exception e) {
-            throw new EmailDuplicateException(userDto.getEmail());
+        } catch (EntityDuplicateException e) {
+            throw new EntityDuplicateException("user", userDto.getEmail());
         }
-
     }
 
     @Override
     public UserDto readUser(long userId) {
-        return userMapper.toUserDto(userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId)));
+        return userMapper.toUserDto(userRepository.findById(userId).orElseThrow(()
+                -> new EntityNotFoundException("user", userId)));
     }
 
     @Override
@@ -49,7 +42,7 @@ public class UserServiceImpl implements UserService {
     public UserDto updateUser(UserDto userDto, long userId) {
         User oldUser =
                 userRepository.findById(userId)
-                        .orElseThrow(() -> new UserNotFoundException(userId));
+                        .orElseThrow(() -> new EntityNotFoundException("user", userId));
 
         User updatedUser = User.builder()
                 .id(userId)
@@ -69,12 +62,5 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream().map(userMapper::toUserDto).collect(Collectors.toList());
-    }
-
-    private static void validateEmail(String emailStr) {
-        Matcher matcher = Pattern.compile(CommonConstants.VALID_EMAIL_ADDRESS_REGEX).matcher(emailStr);
-        if (!matcher.matches()) {
-            throw new EmailNotValidException(emailStr);
-        }
     }
 }
