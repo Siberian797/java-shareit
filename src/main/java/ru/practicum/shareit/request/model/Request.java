@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "requests")
-public class ItemRequest {
+public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -25,7 +25,7 @@ public class ItemRequest {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private User requester;
 
     private LocalDateTime createdTime;
 }

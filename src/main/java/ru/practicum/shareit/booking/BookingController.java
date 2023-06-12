@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
@@ -10,6 +11,8 @@ import ru.practicum.shareit.booking.status.BookingState;
 import ru.practicum.shareit.utils.CommonConstants;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -47,16 +50,20 @@ public class BookingController {
     @GetMapping
     @SuppressWarnings(value = "unused")
     public List<BookingResponseDto> getUserBookings(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
-                                                    @RequestParam(defaultValue = "ALL") BookingState state) {
+                                                    @RequestParam(defaultValue = "ALL") BookingState state,
+                                                    @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                                    @RequestParam(defaultValue = "10") @Positive Integer size) {
         log.info("GET-user-bookings was called.");
-        return bookingService.getBookings(state, userId);
+        return bookingService.getBookings(state, userId, PageRequest.of(from, size));
     }
 
     @GetMapping("/owner")
     @SuppressWarnings(value = "unused")
     public List<BookingResponseDto> getUserItems(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
-                                                 @RequestParam(defaultValue = "ALL") BookingState state) {
+                                                 @RequestParam(defaultValue = "ALL") BookingState state,
+                                                 @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                                 @RequestParam(defaultValue = "10") @Positive Integer size) {
         log.info("GET-owner-bookings was called.");
-        return bookingService.getItems(state, userId);
+        return bookingService.getItems(state, userId, PageRequest.of(from, size));
     }
 }

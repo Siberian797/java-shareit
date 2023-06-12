@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.comment.dto.CommentRequestDto;
 import ru.practicum.shareit.comment.dto.CommentResponseDto;
@@ -23,7 +24,7 @@ public class ItemController {
     @PostMapping
     @SuppressWarnings(value = "unused")
     public ItemDto createItem(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
-                              @Valid @RequestBody ItemRequestDto commentRequestDto) {
+                              @Validated(ItemRequestDto.New.class) @RequestBody ItemRequestDto commentRequestDto) {
         log.info("POST-items was called.");
         return itemService.createItem(commentRequestDto, userId);
     }
@@ -39,7 +40,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     @SuppressWarnings(value = "unused")
     public ItemDto updateItem(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
-                              @RequestBody ItemDto itemDto,
+                              @Validated(ItemRequestDto.Update.class) @RequestBody ItemDto itemDto,
                               @PathVariable long itemId) {
         log.info("PATCH-items was called.");
         return itemService.updateItem(userId, itemDto, itemId);

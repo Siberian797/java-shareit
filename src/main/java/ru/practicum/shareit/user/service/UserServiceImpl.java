@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService {
     public UserDto createUser(UserDto userDto) {
         try {
             User newUser = userRepository.save(userMapper.toUser(userDto));
-            return userMapper.toUserDto(newUser);
+            return UserMapper.toUserDto(newUser);
         } catch (EntityDuplicateException e) {
             throw new EntityDuplicateException("user", userDto.getEmail());
         }
@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto readUser(long userId) {
-        return userMapper.toUserDto(userRepository.findById(userId).orElseThrow(()
+        return UserMapper.toUserDto(userRepository.findById(userId).orElseThrow(()
                 -> new EntityNotFoundException("user", userId)));
     }
 
@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
                 .email(userDto.getEmail() == null || userDto.getEmail().isBlank() ? oldUser.getEmail() : userDto.getEmail())
                 .build();
 
-        return createUser(userMapper.toUserDto(updatedUser));
+        return createUser(UserMapper.toUserDto(updatedUser));
     }
 
     @Override
@@ -61,6 +61,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getAllUsers() {
-        return userRepository.findAll().stream().map(userMapper::toUserDto).collect(Collectors.toList());
+        return userRepository.findAll().stream().map(UserMapper::toUserDto).collect(Collectors.toList());
     }
 }
