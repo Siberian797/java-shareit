@@ -29,6 +29,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(SpringExtension.class)
 @SuppressWarnings("unused")
 class UserControllerTest {
+    @MockBean
+    private UserMapper userMapper;
     @Autowired
     private UserController userController;
 

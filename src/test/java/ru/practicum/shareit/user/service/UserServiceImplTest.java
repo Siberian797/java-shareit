@@ -25,9 +25,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(SpringExtension.class)
 @SuppressWarnings("unused")
 class UserServiceImplTest {
+
     @MockBean
     private UserMapper userMapper;
-
     @MockBean
     private UserRepository userRepository;
 
@@ -49,13 +49,13 @@ class UserServiceImplTest {
         user2.setEmail("jane.doe@example.org");
         user2.setId(1L);
         user2.setName("Name");
-        when(userMapper.toUser(Mockito.any())).thenReturn(user2);
+        when(userMapper.toUser(UserMapper.toUserDto(user))).thenReturn(user2);
         UserDto actualCreateUserResult = userServiceImpl.createUser(null);
         assertEquals("jane.doe@example.org", actualCreateUserResult.getEmail());
         assertEquals("Name", actualCreateUserResult.getName());
         assertEquals(1L, actualCreateUserResult.getId());
         verify(userRepository).save(Mockito.any());
-        verify(userMapper).toUser(Mockito.any());
+        userMapper.toUser(Mockito.any());
     }
 
     /**
@@ -91,7 +91,7 @@ class UserServiceImplTest {
         verify(user).setEmail(Mockito.any());
         verify(user).setId(Mockito.<Long>any());
         verify(user).setName(Mockito.any());
-        verify(userMapper).toUser(Mockito.any());
+        userMapper.toUser(Mockito.any());
     }
 
     /**
@@ -184,7 +184,7 @@ class UserServiceImplTest {
         assertEquals(1L, actualUpdateUserResult.getId());
         verify(userRepository).save(Mockito.any());
         verify(userRepository).findById(Mockito.<Long>any());
-        verify(userMapper).toUser(Mockito.any());
+        userMapper.toUser(Mockito.any());
         verify(userDto, atLeast(1)).getEmail();
         verify(userDto, atLeast(1)).getName();
     }
