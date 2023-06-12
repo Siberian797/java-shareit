@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,8 @@ import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.utils.ItemMapper;
+import ru.practicum.shareit.request.model.Request;
+import ru.practicum.shareit.request.repository.RequestRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -37,10 +40,9 @@ import static java.util.stream.Collectors.toList;
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final RequestRepository requestRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
-    private final ItemMapper itemMapper;
-    private final UserMapper userMapper;
     private final BookingMapper bookingMapper;
     private final CommentMapper commentMapper;
 
@@ -49,7 +51,13 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public ItemDto createItem(ItemRequestDto itemRequestDto, long userId) {
         User user = getUser(userId);
-        return itemMapper.toItemDto(itemRepository.save(itemMapper.toItem(itemRequestDto, user)), userMapper.toUserDto(user));
+        Item item = ItemMapper.toItem(itemRequestDto, user);
+
+        if (Objects.nonNull(itemRequestDto.getRequestId())) {
+            Request request = requestRepository.findById(itemRequestDto.getRequestId()).orElseThrow(() -> new EntityNotFoundException("request", itemRequestDto.getRequestId()));
+            item.setRequest(request);
+        }
+        return ItemMapper.toItemDto(itemRepository.save(item), UserMapper.toUserDto(user));
     }
 
     @Override
@@ -58,8 +66,8 @@ public class ItemServiceImpl implements ItemService {
         Map<Item, List<Booking>> bookings = getBookings(List.of(item));
         Map<Item, List<Comment>> comments = getComments(List.of(item));
 
-        UserDto userDto = userMapper.toUserDto(item.getOwner());
-        ItemDto itemDto = itemMapper.toItemDto(item, userDto);
+        UserDto userDto = UserMapper.toUserDto(item.getOwner());
+        ItemDto itemDto = ItemMapper.toItemDto(item, userDto);
         setBookings(itemDto, requesterId, bookings.get(item), LocalDateTime.now());
         setComments(itemDto, comments.get(item));
 
@@ -84,7 +92,7 @@ public class ItemServiceImpl implements ItemService {
                 .build();
 
         itemRepository.save(updatedItem);
-        return itemMapper.toItemDto(updatedItem, userMapper.toUserDto(user));
+        return ItemMapper.toItemDto(updatedItem, UserMapper.toUserDto(user));
     }
 
     @Override
@@ -96,14 +104,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAllItems(long userId) {
-        UserDto userDto = userMapper.toUserDto(getUser(userId));
+        UserDto userDto = UserMapper.toUserDto(getUser(userId));
         List<Item> items = itemRepository.findByOwnerIdOrderByIdAsc(userId);
         Map<Item, List<Comment>> comments = getComments(items);
         Map<Item, List<Booking>> bookings = getBookings(items);
 
         List<ItemDto> itemDtos = new ArrayList<>();
         for (Item item : items) {
-            ItemDto itemDto = itemMapper.toItemDto(item, userDto);
+            ItemDto itemDto = ItemMapper.toItemDto(item, userDto);
             setBookings(itemDto, userDto.getId(), bookings.get(item), LocalDateTime.now());
             setComments(itemDto, comments.get(item));
             itemDto.setComments(comments.getOrDefault(item,
@@ -114,15 +122,15 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAvailableItemsByText(String text) {
+    public List<ItemDto> getAvailableItemsByText(String text, long userId, PageRequest pageRequest) {
         if (text.isBlank()) {
             return Collections.emptyList();
         }
         List<ItemDto> itemDtos = new ArrayList<>();
         for (Item item : itemRepository.findByNameLikeIgnoreCaseOrDescriptionLikeIgnoreCaseAndAvailableOrderByIdDesc(
-                text, true)) {
-            UserDto userDto = userMapper.toUserDto(item.getOwner());
-            ItemDto itemDto = itemMapper.toItemDto(item, userDto);
+                text, true, pageRequest)) {
+            UserDto userDto = UserMapper.toUserDto(item.getOwner());
+            ItemDto itemDto = ItemMapper.toItemDto(item, userDto);
             itemDtos.add(itemDto);
         }
         return itemDtos;
@@ -140,7 +148,7 @@ public class ItemServiceImpl implements ItemService {
         }
 
         return commentMapper.toResponseDto(commentRepository.save(
-                commentMapper.toComment(commentRequestDto, item, user, LocalDateTime.now())), userMapper.toUserDto(user));
+                commentMapper.toComment(commentRequestDto, item, user, LocalDateTime.now())), UserMapper.toUserDto(user));
     }
 
     private User getUser(long userId) {
@@ -168,15 +176,15 @@ public class ItemServiceImpl implements ItemService {
                             .findFirst().orElse(null);
 
             itemDto.setLastBooking(Objects.isNull(lastBooking) ? null :
-                    bookingMapper.toItemResponseDto(lastBooking, userMapper.toUserDto(lastBooking.getBooker())));
+                    bookingMapper.toItemResponseDto(lastBooking, UserMapper.toUserDto(lastBooking.getBooker())));
             itemDto.setNextBooking(Objects.isNull(nextBooking) ? null :
-                    bookingMapper.toItemResponseDto(nextBooking, userMapper.toUserDto(nextBooking.getBooker())));
+                    bookingMapper.toItemResponseDto(nextBooking, UserMapper.toUserDto(nextBooking.getBooker())));
         }
     }
 
     private void setComments(ItemDto itemDto, List<Comment> comments) {
         itemDto.setComments(comments == null ? List.of() : comments.stream()
-                .map(comment -> commentMapper.toResponseDto(comment, userMapper.toUserDto(comment.getAuthor())))
+                .map(comment -> commentMapper.toResponseDto(comment, UserMapper.toUserDto(comment.getAuthor())))
                 .collect(toList()));
     }
 

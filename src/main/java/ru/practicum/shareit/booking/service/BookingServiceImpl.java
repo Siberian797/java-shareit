@@ -129,7 +129,6 @@ public class BookingServiceImpl implements BookingService {
                 break;
             default:
                 bookings = bookingRepository.findByBookerIdOrderByStartDesc(userId, pageRequest);
-                break;
         }
 
         return bookings.stream().map(this::getBookingResponseDto).collect(Collectors.toList());

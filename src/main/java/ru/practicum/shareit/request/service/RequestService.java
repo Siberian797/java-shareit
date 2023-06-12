@@ -7,7 +7,7 @@ import ru.practicum.shareit.request.dto.RequestResponseDto;
 import java.util.List;
 
 public interface RequestService {
-    RequestResponseDto createRequest(RequestRequestDto requestDto,  long userId);
+    RequestResponseDto createRequest(RequestRequestDto requestDto, long userId);
 
     RequestResponseDto readRequest(long requestId, long userId);
 

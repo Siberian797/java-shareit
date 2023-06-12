@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.comment.dto.CommentRequestDto;
@@ -12,6 +13,8 @@ import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.utils.CommonConstants;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -63,9 +66,12 @@ public class ItemController {
 
     @GetMapping("/search")
     @SuppressWarnings(value = "unused")
-    public List<ItemDto> getAllAvailableItemsByText(@RequestParam String text) {
+    public List<ItemDto> getAllAvailableItemsByText(@RequestParam String text,
+                                                    @RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
+                                                    @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                                    @RequestParam(defaultValue = "10") @Positive Integer size) {
         log.info("GET-items (available) was called.");
-        return itemService.getAvailableItemsByText(text);
+        return itemService.getAvailableItemsByText(text, userId, PageRequest.of(from, size));
     }
 
     @PostMapping("/{itemId}/comment")
