@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -68,7 +69,8 @@ class UserControllerTest {
      * Method under test: {@link UserController#readUser(long)}
      */
     @Test
-    void testReadUser() throws Exception {
+    @SneakyThrows
+    void testReadUser() {
         UserDto userDto = mock(UserDto.class);
         when(userDto.getEmail()).thenReturn("jane.doe@example.org");
         when(userDto.getName()).thenReturn("Name");
@@ -126,7 +128,8 @@ class UserControllerTest {
      * Method under test: {@link UserController#updateUser(UserDto, long)}
      */
     @Test
-    void testUpdateUser() throws Exception {
+    @SneakyThrows
+    void testUpdateUser() {
         UserDto userDto = mock(UserDto.class);
         when(userDto.getEmail()).thenReturn("jane.doe@example.org");
         when(userDto.getName()).thenReturn("Name");
