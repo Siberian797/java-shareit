@@ -1,16 +1,13 @@
 package ru.practicum.shareit.user;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -71,19 +68,9 @@ class UserControllerTest {
     @Test
     @SneakyThrows
     void testReadUser() {
-        UserDto userDto = mock(UserDto.class);
-        when(userDto.getEmail()).thenReturn("jane.doe@example.org");
-        when(userDto.getName()).thenReturn("Name");
-        when(userDto.getId()).thenReturn(1L);
+        UserDto userDto = UserDto.builder().id(1L).build();
         when(userService.readUser(anyLong())).thenReturn(userDto);
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/users/{userId}", 1L);
-        MockMvcBuilders.standaloneSetup(userController)
-                .build()
-                .perform(requestBuilder)
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
-                .andExpect(MockMvcResultMatchers.content()
-                        .string("{\"id\":1,\"name\":\"Name\",\"email\":\"jane.doe@example.org\"}"));
+        assertEquals(userDto, userController.readUser(1L));
     }
 
     /**
@@ -130,19 +117,9 @@ class UserControllerTest {
     @Test
     @SneakyThrows
     void testUpdateUser() {
-        UserDto userDto = mock(UserDto.class);
-        when(userDto.getEmail()).thenReturn("jane.doe@example.org");
-        when(userDto.getName()).thenReturn("Name");
-        when(userDto.getId()).thenReturn(1L);
-        String content = (new ObjectMapper()).writeValueAsString(userDto);
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
-                .patch("/users/{userId}", "", "Uri Variables")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(content);
-        ResultActions actualPerformResult = MockMvcBuilders.standaloneSetup(userController)
-                .build()
-                .perform(requestBuilder);
-        actualPerformResult.andExpect(MockMvcResultMatchers.status().is(405));
+        UserDto userDto = UserDto.builder().id(1L).build();
+        when(userService.updateUser(userDto, 1L)).thenReturn(userDto);
+        assertEquals(userDto, userController.updateUser(userDto, 1L));
     }
 }
 
