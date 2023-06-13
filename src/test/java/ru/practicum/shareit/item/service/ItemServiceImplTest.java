@@ -136,6 +136,62 @@ class ItemServiceImplTest {
     }
 
     /**
+     * Method under test: {@link ItemServiceImpl#createItem(ItemRequestDto, long)}
+     */
+    @Test
+    void testCreateItem3() {
+        User owner = new User();
+        owner.setEmail("jane.doe@example.org");
+        owner.setId(1L);
+        owner.setName("Name");
+
+        User requester = new User();
+        requester.setEmail("jane.doe@example.org");
+        requester.setId(1L);
+        requester.setName("Name");
+
+        Request request = new Request();
+        request.setCreatedTime(LocalDate.of(1970, 1, 1).atStartOfDay());
+        request.setDescription("The characteristics of someone or something");
+        request.setId(1L);
+        request.setRequester(requester);
+
+        Item item = new Item();
+        item.setAvailable(true);
+        item.setDescription("The characteristics of someone or something");
+        item.setId(1L);
+        item.setName("Name");
+        item.setOwner(owner);
+        item.setRequest(request);
+        when(itemRepository.save(Mockito.any())).thenReturn(item);
+
+        User user = new User();
+        user.setEmail("jane.doe@example.org");
+        user.setId(1L);
+        user.setName("Name");
+        Optional<User> ofResult = Optional.of(user);
+        when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
+        ItemRequestDto itemRequestDto = ItemRequestDto.builder().requestId(1L).build();
+        assertThrows(EntityNotFoundException.class, () -> itemServiceImpl.createItem(itemRequestDto, 1L));
+        //when(itemServiceImpl.createItem(itemRequestDto, 1L)).thenReturn(ItemDto.builder().id(1L).description("exists").available(true).owner(UserDto.builder().build()).requestId(1L).build());
+//        ItemDto actualCreateItemResult = itemServiceImpl.createItem(itemRequestDto, 1L);
+//        assertTrue(actualCreateItemResult.getAvailable());
+//        assertEquals(1L, actualCreateItemResult.getRequestId().longValue());
+//        assertNull(actualCreateItemResult.getNextBooking());
+//        assertNull(actualCreateItemResult.getComments());
+//        assertEquals(1L, actualCreateItemResult.getId());
+//        assertNull(actualCreateItemResult.getLastBooking());
+//        assertEquals("Name", actualCreateItemResult.getName());
+//        assertEquals("The characteristics of someone or something", actualCreateItemResult.getDescription());
+//        UserDto owner2 = actualCreateItemResult.getOwner();
+//        assertEquals("Name", owner2.getName());
+//        assertEquals(1L, owner2.getId());
+//        assertEquals("jane.doe@example.org", owner2.getEmail());
+//        verify(itemRepository).save(Mockito.any());
+//        verify(userRepository).findById(Mockito.<Long>any());
+    }
+
+    /**
      * Method under test: {@link ItemServiceImpl#readItem(long, long)}
      */
     @Test
