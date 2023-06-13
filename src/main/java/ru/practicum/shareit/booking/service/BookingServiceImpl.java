@@ -44,11 +44,7 @@ public class BookingServiceImpl implements BookingService {
             throw new EntityNotValidException("item", "available");
         }
 
-        if (bookingRequestDto.getStart().isAfter(bookingRequestDto.getEnd())) {
-            throw new EntityNotValidException("item", "start");
-        }
-
-        if (bookingRequestDto.getStart().equals(bookingRequestDto.getEnd())) {
+        if (bookingRequestDto.getStart().isAfter(bookingRequestDto.getEnd()) || bookingRequestDto.getStart().equals(bookingRequestDto.getEnd())) {
             throw new EntityNotValidException("item", "start");
         }
 
