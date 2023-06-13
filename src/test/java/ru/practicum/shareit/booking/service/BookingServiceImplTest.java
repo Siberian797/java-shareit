@@ -235,6 +235,44 @@ class BookingServiceImplTest {
     }
 
     /**
+     * Method under test: {@link BookingServiceImpl#createBooking(BookingRequestDto, long)}
+     */
+    @Test
+    void testCreateBooking6() {
+        User user = new User();
+        user.setEmail("jane.doe@example.org");
+        user.setId(1L);
+        user.setName("Name");
+        Optional<User> ofResult = Optional.of(user);
+        when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
+
+        User owner = new User();
+        owner.setEmail("jane.doe@example.org");
+        owner.setId(1L);
+        owner.setName("Name");
+
+        User requester = new User();
+        requester.setEmail("jane.doe@example.org");
+        requester.setId(1L);
+        requester.setName("Name");
+
+        Request request = new Request();
+        request.setCreatedTime(LocalDate.of(1970, 1, 1).atStartOfDay());
+        request.setDescription("The characteristics of someone or something");
+        request.setId(1L);
+        request.setRequester(requester);
+        Item item = mock(Item.class);
+        when(item.getAvailable()).thenReturn(true);
+        Optional<Item> ofResult2 = Optional.of(Item.builder().id(1L).available(false).request(request).name("name").description("description").build());
+        when(itemRepository.findById(Mockito.<Long>any())).thenReturn(ofResult2);
+        LocalDateTime start = LocalDate.of(1970, 1, 1).atStartOfDay();
+        assertThrows(EntityNotValidException.class, () -> bookingServiceImpl
+                .createBooking(BookingRequestDto.builder().start(start).end(start.plusDays(30)).itemId(1L).build(), 2L));
+        verify(userRepository).findById(Mockito.<Long>any());
+        verify(itemRepository).findById(Mockito.<Long>any());
+    }
+
+    /**
      * Method under test: {@link BookingServiceImpl#readBooking(long, long)}
      */
     @Test
@@ -946,7 +984,7 @@ class BookingServiceImplTest {
         user2.setId(1L);
         user2.setName("Name");
         Optional<User> ofResult2 = Optional.of(user2);
-        when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult2);
+        when(userRepository.findById(Mockito.<Long>any())).thenReturn(Optional.ofNullable(User.builder().email("email@mail.com").id(1L).name("name").build()));
         assertThrows(EntityNotFoundException.class, () -> bookingServiceImpl.updateBooking(1L, true, 1L));
         verify(bookingRepository).findById(Mockito.<Long>any());
         verify(booking).getStatus();
