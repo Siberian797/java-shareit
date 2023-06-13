@@ -20,6 +20,7 @@ import ru.practicum.shareit.exception.EntityNotValidException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.model.Request;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -268,6 +269,87 @@ class BookingServiceImplTest {
         LocalDateTime start = LocalDate.of(1970, 1, 1).atStartOfDay();
         assertThrows(EntityNotValidException.class, () -> bookingServiceImpl
                 .createBooking(BookingRequestDto.builder().start(start).end(start.plusDays(30)).itemId(1L).build(), 2L));
+        verify(userRepository).findById(Mockito.<Long>any());
+        verify(itemRepository).findById(Mockito.<Long>any());
+    }
+
+    /**
+     * Method under test: {@link BookingServiceImpl#createBooking(BookingRequestDto, long)}
+     */
+    @Test
+    void testCreateBooking7() {
+        User user = new User();
+        user.setEmail("jane.doe@example.org");
+        user.setId(1L);
+        user.setName("Name");
+        Optional<User> ofResult = Optional.of(user);
+        when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
+
+        User owner = new User();
+        owner.setEmail("jane.doe@example.org");
+        owner.setId(1L);
+        owner.setName("Name");
+
+        User requester = new User();
+        requester.setEmail("jane.doe@example.org");
+        requester.setId(1L);
+        requester.setName("Name");
+
+        Request request = new Request();
+        request.setCreatedTime(LocalDate.of(1970, 1, 1).atStartOfDay());
+        request.setDescription("The characteristics of someone or something");
+        request.setId(1L);
+        request.setRequester(requester);
+        Item item = mock(Item.class);
+        when(item.getAvailable()).thenReturn(true);
+        Optional<Item> ofResult2 = Optional.of(Item.builder().id(1L).available(true).request(request).name("name").description("description").owner(user).build());
+        when(itemRepository.findById(Mockito.<Long>any())).thenReturn(ofResult2);
+        LocalDateTime start = LocalDate.of(1970, 1, 1).atStartOfDay();
+        assertThrows(EntityNotFoundException.class, () -> bookingServiceImpl
+                .createBooking(BookingRequestDto.builder().start(start).end(start.plusDays(30)).itemId(1L).build(), 1L));
+        verify(userRepository).findById(Mockito.<Long>any());
+        verify(itemRepository).findById(Mockito.<Long>any());
+    }
+
+    /**
+     * Method under test: {@link BookingServiceImpl#createBooking(BookingRequestDto, long)}
+     */
+    @Test
+    void testCreateBooking8() {
+        User user = new User();
+        user.setEmail("jane.doe@example.org");
+        user.setId(1L);
+        user.setName("Name");
+
+        UserDto userDto = UserDto.builder().id(1L).email("jane.doe@example.org").name("Name").build();
+
+        Optional<User> ofResult = Optional.of(user);
+        when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
+
+        User owner = new User();
+        owner.setEmail("jane.doe@example.org");
+        owner.setId(2L);
+        owner.setName("Name");
+
+        User requester = new User();
+        requester.setEmail("jane.doe@example.org");
+        requester.setId(1L);
+        requester.setName("Name");
+
+        Request request = new Request();
+        request.setCreatedTime(LocalDate.of(1970, 1, 1).atStartOfDay());
+        request.setDescription("The characteristics of someone or something");
+        request.setId(1L);
+        request.setRequester(requester);
+        Item item = mock(Item.class);
+        when(item.getAvailable()).thenReturn(true);
+        when(item.getOwner()).thenReturn(user);
+        Optional<Item> ofResult2 = Optional.of(Item.builder().id(1L).available(true).request(request).name("name").description("description").owner(owner).build());
+        when(itemRepository.findById(Mockito.<Long>any())).thenReturn(ofResult2);
+        when(bookingMapper.toBooking(Mockito.any())).thenReturn(new Booking());
+        when(bookingRepository.save(Mockito.any())).thenReturn(Booking.builder().id(1L).status(BookingStatus.WAITING).start(LocalDateTime.MIN).end(LocalDateTime.MAX).booker(user).item(item).build());
+        LocalDateTime start = LocalDate.of(1970, 1, 1).atStartOfDay();
+        assertDoesNotThrow(() -> bookingServiceImpl.createBooking(BookingRequestDto.builder().start(start).end(start.plusDays(30)).itemId(1L).build(), 1L));
         verify(userRepository).findById(Mockito.<Long>any());
         verify(itemRepository).findById(Mockito.<Long>any());
     }
