@@ -1,6 +1,8 @@
 package ru.practicum.shareit.exception;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.io.IOException;
@@ -8,6 +10,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ExtendWith(MockitoExtension.class)
 class ShareitExceptionHandlerTest {
     /**
      * Method under test: {@link ShareitExceptionHandler#handleNotExistingFilm(MethodArgumentTypeMismatchException)}

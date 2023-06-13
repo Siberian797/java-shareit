@@ -8,7 +8,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.booking.status.BookingStatus;
 import ru.practicum.shareit.booking.utils.BookingMapper;
 import ru.practicum.shareit.comment.dto.CommentRequestDto;
 import ru.practicum.shareit.comment.dto.CommentResponseDto;
@@ -484,6 +486,531 @@ class ItemServiceImplTest {
         assertThrows(EntityNotValidException.class, () -> itemServiceImpl.getAllItems(1L));
         verify(itemRepository).findByOwnerIdOrderByIdAsc(anyLong());
         verify(userRepository).findById(Mockito.<Long>any());
+        verify(commentRepository).findByItemIn(Mockito.any(), Mockito.any());
+    }
+
+    /**
+     * Method under test: {@link ItemServiceImpl#getAllItems(long)}
+     */
+    @Test
+    void testGetAllItems3() {
+        when(itemRepository.findByOwnerIdOrderByIdAsc(anyLong())).thenReturn(new ArrayList<>());
+
+        User user = new User();
+        user.setEmail("jane.doe@example.org");
+        user.setId(1L);
+        user.setName("Name");
+        Optional<User> ofResult = Optional.of(user);
+        when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
+        when(bookingRepository.findByItemInAndStatus(Mockito.any(), Mockito.any(),
+                Mockito.any())).thenReturn(new ArrayList<>());
+        when(commentRepository.findByItemIn(Mockito.any(), Mockito.any()))
+                .thenReturn(new ArrayList<>());
+        assertTrue(itemServiceImpl.getAllItems(1L).isEmpty());
+        verify(itemRepository).findByOwnerIdOrderByIdAsc(anyLong());
+        verify(userRepository).findById(Mockito.<Long>any());
+        verify(bookingRepository).findByItemInAndStatus(Mockito.any(), Mockito.any(),
+                Mockito.any());
+        verify(commentRepository).findByItemIn(Mockito.any(), Mockito.any());
+    }
+
+    /**
+     * Method under test: {@link ItemServiceImpl#getAllItems(long)}
+     */
+    @Test
+    void testGetAllItems4() {
+        when(itemRepository.findByOwnerIdOrderByIdAsc(anyLong())).thenReturn(new ArrayList<>());
+
+        User user = new User();
+        user.setEmail("jane.doe@example.org");
+        user.setId(1L);
+        user.setName("Name");
+        Optional<User> ofResult = Optional.of(user);
+        when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
+        when(bookingRepository.findByItemInAndStatus(Mockito.any(), Mockito.any(),
+                Mockito.any())).thenReturn(new ArrayList<>());
+        when(commentRepository.findByItemIn(Mockito.any(), Mockito.any()))
+                .thenThrow(new EntityNotValidException("created", "created"));
+        assertThrows(EntityNotValidException.class, () -> itemServiceImpl.getAllItems(1L));
+        verify(itemRepository).findByOwnerIdOrderByIdAsc(anyLong());
+        verify(userRepository).findById(Mockito.<Long>any());
+        verify(commentRepository).findByItemIn(Mockito.any(), Mockito.any());
+    }
+
+    /**
+     * Method under test: {@link ItemServiceImpl#getAllItems(long)}
+     */
+    @Test
+    void testGetAllItems5() {
+        User owner = new User();
+        owner.setEmail("jane.doe@example.org");
+        owner.setId(1L);
+        owner.setName("created");
+
+        User requester = new User();
+        requester.setEmail("jane.doe@example.org");
+        requester.setId(1L);
+        requester.setName("created");
+
+        Request request = new Request();
+        request.setCreatedTime(LocalDate.of(1970, 1, 1).atStartOfDay());
+        request.setDescription("The characteristics of someone or something");
+        request.setId(1L);
+        request.setRequester(requester);
+
+        Item item = new Item();
+        item.setAvailable(true);
+        item.setDescription("The characteristics of someone or something");
+        item.setId(1L);
+        item.setName("created");
+        item.setOwner(owner);
+        item.setRequest(request);
+
+        ArrayList<Item> itemList = new ArrayList<>();
+        itemList.add(item);
+        when(itemRepository.findByOwnerIdOrderByIdAsc(anyLong())).thenReturn(itemList);
+
+        User user = new User();
+        user.setEmail("jane.doe@example.org");
+        user.setId(1L);
+        user.setName("Name");
+        Optional<User> ofResult = Optional.of(user);
+        when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
+        when(bookingRepository.findByItemInAndStatus(Mockito.any(), Mockito.any(),
+                Mockito.any())).thenReturn(new ArrayList<>());
+        when(commentRepository.findByItemIn(Mockito.any(), Mockito.any()))
+                .thenReturn(new ArrayList<>());
+        assertEquals(1, itemServiceImpl.getAllItems(1L).size());
+        verify(itemRepository).findByOwnerIdOrderByIdAsc(anyLong());
+        verify(userRepository).findById(Mockito.<Long>any());
+        verify(bookingRepository).findByItemInAndStatus(Mockito.any(), Mockito.any(),
+                Mockito.any());
+        verify(commentRepository).findByItemIn(Mockito.any(), Mockito.any());
+    }
+
+    /**
+     * Method under test: {@link ItemServiceImpl#getAllItems(long)}
+     */
+    @Test
+    void testGetAllItems6() {
+        when(itemRepository.findByOwnerIdOrderByIdAsc(anyLong())).thenReturn(new ArrayList<>());
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(1L);
+        when(user.getEmail()).thenReturn("jane.doe@example.org");
+        when(user.getName()).thenReturn("Name");
+        doNothing().when(user).setEmail(Mockito.any());
+        doNothing().when(user).setId(Mockito.<Long>any());
+        doNothing().when(user).setName(Mockito.any());
+        user.setEmail("jane.doe@example.org");
+        user.setId(1L);
+        user.setName("Name");
+        Optional<User> ofResult = Optional.of(user);
+        when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
+        when(bookingRepository.findByItemInAndStatus(Mockito.any(), Mockito.any(),
+                Mockito.any())).thenReturn(new ArrayList<>());
+        when(commentRepository.findByItemIn(Mockito.any(), Mockito.any()))
+                .thenReturn(new ArrayList<>());
+        assertTrue(itemServiceImpl.getAllItems(1L).isEmpty());
+        verify(itemRepository).findByOwnerIdOrderByIdAsc(anyLong());
+        verify(userRepository).findById(Mockito.<Long>any());
+        verify(user).getId();
+        verify(user).getEmail();
+        verify(user).getName();
+        verify(user).setEmail(Mockito.any());
+        verify(user).setId(Mockito.<Long>any());
+        verify(user).setName(Mockito.any());
+        verify(bookingRepository).findByItemInAndStatus(Mockito.any(), Mockito.any(),
+                Mockito.any());
+        verify(commentRepository).findByItemIn(Mockito.any(), Mockito.any());
+    }
+
+    /**
+     * Method under test: {@link ItemServiceImpl#getAllItems(long)}
+     */
+    @Test
+    void testGetAllItems7() {
+        when(itemRepository.findByOwnerIdOrderByIdAsc(anyLong())).thenReturn(new ArrayList<>());
+        when(userRepository.findById(Mockito.<Long>any())).thenReturn(Optional.empty());
+        when(bookingRepository.findByItemInAndStatus(Mockito.any(), Mockito.any(),
+                Mockito.any())).thenReturn(new ArrayList<>());
+        when(commentRepository.findByItemIn(Mockito.any(), Mockito.any()))
+                .thenReturn(new ArrayList<>());
+        assertThrows(EntityNotFoundException.class, () -> itemServiceImpl.getAllItems(1L));
+        verify(userRepository).findById(Mockito.<Long>any());
+    }
+
+    /**
+     * Method under test: {@link ItemServiceImpl#getAllItems(long)}
+     */
+    @Test
+    void testGetAllItems8() {
+        when(itemRepository.findByOwnerIdOrderByIdAsc(anyLong())).thenReturn(new ArrayList<>());
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(1L);
+        when(user.getEmail()).thenReturn("jane.doe@example.org");
+        when(user.getName()).thenReturn("Name");
+        doNothing().when(user).setEmail(Mockito.any());
+        doNothing().when(user).setId(Mockito.<Long>any());
+        doNothing().when(user).setName(Mockito.any());
+        user.setEmail("jane.doe@example.org");
+        user.setId(1L);
+        user.setName("Name");
+        Optional<User> ofResult = Optional.of(user);
+        when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
+
+        User booker = new User();
+        booker.setEmail("jane.doe@example.org");
+        booker.setId(1L);
+        booker.setName("created");
+
+        User owner = new User();
+        owner.setEmail("jane.doe@example.org");
+        owner.setId(1L);
+        owner.setName("created");
+
+        User requester = new User();
+        requester.setEmail("jane.doe@example.org");
+        requester.setId(1L);
+        requester.setName("created");
+
+        Request request = new Request();
+        request.setCreatedTime(LocalDate.of(1970, 1, 1).atStartOfDay());
+        request.setDescription("The characteristics of someone or something");
+        request.setId(1L);
+        request.setRequester(requester);
+
+        Item item = new Item();
+        item.setAvailable(true);
+        item.setDescription("The characteristics of someone or something");
+        item.setId(1L);
+        item.setName("created");
+        item.setOwner(owner);
+        item.setRequest(request);
+
+        Booking booking = new Booking();
+        booking.setBooker(booker);
+        booking.setEnd(LocalDate.of(1970, 1, 1).atStartOfDay());
+        booking.setId(1L);
+        booking.setItem(item);
+        booking.setStart(LocalDate.of(1970, 1, 1).atStartOfDay());
+        booking.setStatus(BookingStatus.WAITING);
+
+        ArrayList<Booking> bookingList = new ArrayList<>();
+        bookingList.add(booking);
+        when(bookingRepository.findByItemInAndStatus(Mockito.any(), Mockito.any(),
+                Mockito.any())).thenReturn(bookingList);
+        when(commentRepository.findByItemIn(Mockito.any(), Mockito.any()))
+                .thenReturn(new ArrayList<>());
+        assertTrue(itemServiceImpl.getAllItems(1L).isEmpty());
+        verify(itemRepository).findByOwnerIdOrderByIdAsc(anyLong());
+        verify(userRepository).findById(Mockito.<Long>any());
+        verify(user).getId();
+        verify(user).getEmail();
+        verify(user).getName();
+        verify(user).setEmail(Mockito.any());
+        verify(user).setId(Mockito.<Long>any());
+        verify(user).setName(Mockito.any());
+        verify(bookingRepository).findByItemInAndStatus(Mockito.any(), Mockito.any(),
+                Mockito.any());
+        verify(commentRepository).findByItemIn(Mockito.any(), Mockito.any());
+    }
+
+    /**
+     * Method under test: {@link ItemServiceImpl#getAllItems(long)}
+     */
+    @Test
+    void testGetAllItems9() {
+        when(itemRepository.findByOwnerIdOrderByIdAsc(anyLong())).thenReturn(new ArrayList<>());
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(1L);
+        when(user.getEmail()).thenReturn("jane.doe@example.org");
+        when(user.getName()).thenReturn("Name");
+        doNothing().when(user).setEmail(Mockito.any());
+        doNothing().when(user).setId(Mockito.<Long>any());
+        doNothing().when(user).setName(Mockito.any());
+        user.setEmail("jane.doe@example.org");
+        user.setId(1L);
+        user.setName("Name");
+        Optional<User> ofResult = Optional.of(user);
+        when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
+
+        User booker = new User();
+        booker.setEmail("jane.doe@example.org");
+        booker.setId(1L);
+        booker.setName("created");
+
+        User owner = new User();
+        owner.setEmail("jane.doe@example.org");
+        owner.setId(1L);
+        owner.setName("created");
+
+        User requester = new User();
+        requester.setEmail("jane.doe@example.org");
+        requester.setId(1L);
+        requester.setName("created");
+
+        Request request = new Request();
+        request.setCreatedTime(LocalDate.of(1970, 1, 1).atStartOfDay());
+        request.setDescription("The characteristics of someone or something");
+        request.setId(1L);
+        request.setRequester(requester);
+
+        Item item = new Item();
+        item.setAvailable(true);
+        item.setDescription("The characteristics of someone or something");
+        item.setId(1L);
+        item.setName("created");
+        item.setOwner(owner);
+        item.setRequest(request);
+
+        Booking booking = new Booking();
+        booking.setBooker(booker);
+        booking.setEnd(LocalDate.of(1970, 1, 1).atStartOfDay());
+        booking.setId(1L);
+        booking.setItem(item);
+        booking.setStart(LocalDate.of(1970, 1, 1).atStartOfDay());
+        booking.setStatus(BookingStatus.WAITING);
+
+        User booker2 = new User();
+        booker2.setEmail("john.smith@example.org");
+        booker2.setId(2L);
+        booker2.setName("start");
+
+        User owner2 = new User();
+        owner2.setEmail("john.smith@example.org");
+        owner2.setId(2L);
+        owner2.setName("start");
+
+        User requester2 = new User();
+        requester2.setEmail("john.smith@example.org");
+        requester2.setId(2L);
+        requester2.setName("start");
+
+        Request request2 = new Request();
+        request2.setCreatedTime(LocalDate.of(1970, 1, 1).atStartOfDay());
+        request2.setDescription("created");
+        request2.setId(2L);
+        request2.setRequester(requester2);
+
+        Item item2 = new Item();
+        item2.setAvailable(false);
+        item2.setDescription("created");
+        item2.setId(2L);
+        item2.setName("start");
+        item2.setOwner(owner2);
+        item2.setRequest(request2);
+
+        Booking booking2 = new Booking();
+        booking2.setBooker(booker2);
+        booking2.setEnd(LocalDate.of(1970, 1, 1).atStartOfDay());
+        booking2.setId(2L);
+        booking2.setItem(item2);
+        booking2.setStart(LocalDate.of(1970, 1, 1).atStartOfDay());
+        booking2.setStatus(BookingStatus.APPROVED);
+
+        ArrayList<Booking> bookingList = new ArrayList<>();
+        bookingList.add(booking2);
+        bookingList.add(booking);
+        when(bookingRepository.findByItemInAndStatus(Mockito.any(), Mockito.any(),
+                Mockito.any())).thenReturn(bookingList);
+        when(commentRepository.findByItemIn(Mockito.any(), Mockito.any()))
+                .thenReturn(new ArrayList<>());
+        assertTrue(itemServiceImpl.getAllItems(1L).isEmpty());
+        verify(itemRepository).findByOwnerIdOrderByIdAsc(anyLong());
+        verify(userRepository).findById(Mockito.<Long>any());
+        verify(user).getId();
+        verify(user).getEmail();
+        verify(user).getName();
+        verify(user).setEmail(Mockito.any());
+        verify(user).setId(Mockito.<Long>any());
+        verify(user).setName(Mockito.any());
+        verify(bookingRepository).findByItemInAndStatus(Mockito.any(), Mockito.any(),
+                Mockito.any());
+        verify(commentRepository).findByItemIn(Mockito.any(), Mockito.any());
+    }
+
+    /**
+     * Method under test: {@link ItemServiceImpl#getAllItems(long)}
+     */
+    @Test
+    void testGetAllItems10() {
+        when(itemRepository.findByOwnerIdOrderByIdAsc(anyLong())).thenReturn(new ArrayList<>());
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(1L);
+        when(user.getEmail()).thenReturn("jane.doe@example.org");
+        when(user.getName()).thenReturn("Name");
+        doNothing().when(user).setEmail(Mockito.any());
+        doNothing().when(user).setId(Mockito.<Long>any());
+        doNothing().when(user).setName(Mockito.any());
+        user.setEmail("jane.doe@example.org");
+        user.setId(1L);
+        user.setName("Name");
+        Optional<User> ofResult = Optional.of(user);
+        when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
+        when(bookingRepository.findByItemInAndStatus(Mockito.any(), Mockito.any(),
+                Mockito.any())).thenReturn(new ArrayList<>());
+
+        User author = new User();
+        author.setEmail("jane.doe@example.org");
+        author.setId(1L);
+        author.setName("created");
+
+        User owner = new User();
+        owner.setEmail("jane.doe@example.org");
+        owner.setId(1L);
+        owner.setName("created");
+
+        User requester = new User();
+        requester.setEmail("jane.doe@example.org");
+        requester.setId(1L);
+        requester.setName("created");
+
+        Request request = new Request();
+        request.setCreatedTime(LocalDate.of(1970, 1, 1).atStartOfDay());
+        request.setDescription("The characteristics of someone or something");
+        request.setId(1L);
+        request.setRequester(requester);
+
+        Item item = new Item();
+        item.setAvailable(true);
+        item.setDescription("The characteristics of someone or something");
+        item.setId(1L);
+        item.setName("created");
+        item.setOwner(owner);
+        item.setRequest(request);
+
+        Comment comment = new Comment();
+        comment.setAuthor(author);
+        comment.setCreated(LocalDate.of(1970, 1, 1).atStartOfDay());
+        comment.setId(1);
+        comment.setItem(item);
+        comment.setText("created");
+
+        ArrayList<Comment> commentList = new ArrayList<>();
+        commentList.add(comment);
+        when(commentRepository.findByItemIn(Mockito.any(), Mockito.any())).thenReturn(commentList);
+        assertTrue(itemServiceImpl.getAllItems(1L).isEmpty());
+        verify(itemRepository).findByOwnerIdOrderByIdAsc(anyLong());
+        verify(userRepository).findById(Mockito.<Long>any());
+        verify(user).getId();
+        verify(user).getEmail();
+        verify(user).getName();
+        verify(user).setEmail(Mockito.any());
+        verify(user).setId(Mockito.<Long>any());
+        verify(user).setName(Mockito.any());
+        verify(bookingRepository).findByItemInAndStatus(Mockito.any(), Mockito.any(),
+                Mockito.any());
+        verify(commentRepository).findByItemIn(Mockito.any(), Mockito.any());
+    }
+
+    /**
+     * Method under test: {@link ItemServiceImpl#getAllItems(long)}
+     */
+    @Test
+    void testGetAllItems11() {
+        when(itemRepository.findByOwnerIdOrderByIdAsc(anyLong())).thenReturn(new ArrayList<>());
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(1L);
+        when(user.getEmail()).thenReturn("jane.doe@example.org");
+        when(user.getName()).thenReturn("Name");
+        doNothing().when(user).setEmail(Mockito.any());
+        doNothing().when(user).setId(Mockito.<Long>any());
+        doNothing().when(user).setName(Mockito.any());
+        user.setEmail("jane.doe@example.org");
+        user.setId(1L);
+        user.setName("Name");
+        Optional<User> ofResult = Optional.of(user);
+        when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
+        when(bookingRepository.findByItemInAndStatus(Mockito.any(), Mockito.any(),
+                Mockito.any())).thenReturn(new ArrayList<>());
+
+        User author = new User();
+        author.setEmail("jane.doe@example.org");
+        author.setId(1L);
+        author.setName("created");
+
+        User owner = new User();
+        owner.setEmail("jane.doe@example.org");
+        owner.setId(1L);
+        owner.setName("created");
+
+        User requester = new User();
+        requester.setEmail("jane.doe@example.org");
+        requester.setId(1L);
+        requester.setName("created");
+
+        Request request = new Request();
+        request.setCreatedTime(LocalDate.of(1970, 1, 1).atStartOfDay());
+        request.setDescription("The characteristics of someone or something");
+        request.setId(1L);
+        request.setRequester(requester);
+
+        Item item = new Item();
+        item.setAvailable(true);
+        item.setDescription("The characteristics of someone or something");
+        item.setId(1L);
+        item.setName("created");
+        item.setOwner(owner);
+        item.setRequest(request);
+
+        Comment comment = new Comment();
+        comment.setAuthor(author);
+        comment.setCreated(LocalDate.of(1970, 1, 1).atStartOfDay());
+        comment.setId(1);
+        comment.setItem(item);
+        comment.setText("created");
+
+        User author2 = new User();
+        author2.setEmail("john.smith@example.org");
+        author2.setId(2L);
+        author2.setName("start");
+
+        User owner2 = new User();
+        owner2.setEmail("john.smith@example.org");
+        owner2.setId(2L);
+        owner2.setName("start");
+
+        User requester2 = new User();
+        requester2.setEmail("john.smith@example.org");
+        requester2.setId(2L);
+        requester2.setName("start");
+
+        Request request2 = new Request();
+        request2.setCreatedTime(LocalDate.of(1970, 1, 1).atStartOfDay());
+        request2.setDescription("created");
+        request2.setId(2L);
+        request2.setRequester(requester2);
+
+        Item item2 = new Item();
+        item2.setAvailable(false);
+        item2.setDescription("created");
+        item2.setId(2L);
+        item2.setName("start");
+        item2.setOwner(owner2);
+        item2.setRequest(request2);
+
+        Comment comment2 = new Comment();
+        comment2.setAuthor(author2);
+        comment2.setCreated(LocalDate.of(1970, 1, 1).atStartOfDay());
+        comment2.setId(2);
+        comment2.setItem(item2);
+        comment2.setText("start");
+
+        ArrayList<Comment> commentList = new ArrayList<>();
+        commentList.add(comment2);
+        commentList.add(comment);
+        when(commentRepository.findByItemIn(Mockito.any(), Mockito.any())).thenReturn(commentList);
+        assertTrue(itemServiceImpl.getAllItems(1L).isEmpty());
+        verify(itemRepository).findByOwnerIdOrderByIdAsc(anyLong());
+        verify(userRepository).findById(Mockito.<Long>any());
+        verify(user).getId();
+        verify(user).getEmail();
+        verify(user).getName();
+        verify(user).setEmail(Mockito.any());
+        verify(user).setId(Mockito.<Long>any());
+        verify(user).setName(Mockito.any());
+        verify(bookingRepository).findByItemInAndStatus(Mockito.any(), Mockito.any(),
+                Mockito.any());
         verify(commentRepository).findByItemIn(Mockito.any(), Mockito.any());
     }
 
