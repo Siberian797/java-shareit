@@ -68,11 +68,9 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingResponseDto readBooking(long bookingId, long userId) {
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow(()
-                -> new EntityNotFoundException("booking", bookingId));
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new EntityNotFoundException("booking", bookingId));
 
-        if (booking.getBooker().getId().equals(userId) ||
-                booking.getItem().getOwner().getId().equals(userId)) {
+        if (booking.getBooker().getId().equals(userId) || booking.getItem().getOwner().getId().equals(userId)) {
             return getBookingResponseDto(booking);
         }
 
@@ -83,8 +81,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingResponseDto updateBooking(long bookingId, boolean approved, long userId) {
         getValidUser(userId);
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow(()
-                -> new EntityNotFoundException("booking", bookingId));
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new EntityNotFoundException("booking", bookingId));
 
         if (!booking.getStatus().equals(BookingStatus.WAITING)) {
             throw new EntityNotValidException("booking", "status");

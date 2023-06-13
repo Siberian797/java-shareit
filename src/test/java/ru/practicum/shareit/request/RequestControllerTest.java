@@ -34,6 +34,28 @@ class RequestControllerTest {
     private RequestService requestService;
 
     /**
+     * Method under test: {@link RequestController#createRequest(long, RequestRequestDto)}
+     */
+    @Test
+    void testCreateRequest2() throws Exception {
+        when(requestService.getAllRequestsByUser(anyLong())).thenReturn(new ArrayList<>());
+
+        RequestRequestDto requestRequestDto = new RequestRequestDto();
+        requestRequestDto.setDescription("The characteristics of someone or something");
+        String content = (new ObjectMapper()).writeValueAsString(requestRequestDto);
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/requests")
+                .header(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER, 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content);
+        MockMvcBuilders.standaloneSetup(requestController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
+                .andExpect(MockMvcResultMatchers.content().string("[]"));
+    }
+
+    /**
      * Method under test: {@link RequestController#readRequest(Long, long)}
      */
     @Test

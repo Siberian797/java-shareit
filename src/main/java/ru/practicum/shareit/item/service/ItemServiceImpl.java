@@ -167,25 +167,17 @@ public class ItemServiceImpl implements ItemService {
 
     private void setBookings(ItemDto itemDto, Long requestUserId, List<Booking> bookings, LocalDateTime now) {
         if (Objects.equals(itemDto.getOwner().getId(), requestUserId)) {
-            Booking lastBooking = bookings == null ? null :
-                    bookings.stream().filter(booking -> !booking.getStart().isAfter(now))
-                            .reduce((first, second) -> second).orElse(null);
+            Booking lastBooking = bookings == null ? null : bookings.stream().filter(booking -> !booking.getStart().isAfter(now)).reduce((first, second) -> second).orElse(null);
 
-            Booking nextBooking = bookings == null ? null :
-                    bookings.stream().filter(booking -> booking.getStart().isAfter(now))
-                            .findFirst().orElse(null);
+            Booking nextBooking = bookings == null ? null : bookings.stream().filter(booking -> booking.getStart().isAfter(now)).findFirst().orElse(null);
 
-            itemDto.setLastBooking(Objects.isNull(lastBooking) ? null :
-                    bookingMapper.toItemResponseDto(lastBooking, UserMapper.toUserDto(lastBooking.getBooker())));
-            itemDto.setNextBooking(Objects.isNull(nextBooking) ? null :
-                    bookingMapper.toItemResponseDto(nextBooking, UserMapper.toUserDto(nextBooking.getBooker())));
+            itemDto.setLastBooking(Objects.isNull(lastBooking) ? null : bookingMapper.toItemResponseDto(lastBooking, UserMapper.toUserDto(lastBooking.getBooker())));
+            itemDto.setNextBooking(Objects.isNull(nextBooking) ? null : bookingMapper.toItemResponseDto(nextBooking, UserMapper.toUserDto(nextBooking.getBooker())));
         }
     }
 
     private void setComments(ItemDto itemDto, List<Comment> comments) {
-        itemDto.setComments(comments == null ? List.of() : comments.stream()
-                .map(comment -> commentMapper.toResponseDto(comment, UserMapper.toUserDto(comment.getAuthor())))
-                .collect(toList()));
+        itemDto.setComments(comments == null ? List.of() : comments.stream().map(comment -> commentMapper.toResponseDto(comment, UserMapper.toUserDto(comment.getAuthor()))).collect(toList()));
     }
 
     private Map<Item, List<Comment>> getComments(List<Item> items) {

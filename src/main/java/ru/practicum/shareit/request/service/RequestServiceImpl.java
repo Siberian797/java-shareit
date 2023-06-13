@@ -65,12 +65,7 @@ public class RequestServiceImpl implements RequestService {
         Map<Long, List<ItemDto>> itemsMap =
                 getItems(itemRequests.stream().map(Request::getId).collect(Collectors.toSet()));
 
-        return itemRequests.stream().map(
-                itemRequest -> RequestMapper.toResponseDto(
-                        itemRequest,
-                        UserMapper.toUserDto(itemRequest.getRequester()),
-                        itemsMap.get(itemRequest.getId())
-                )
+        return itemRequests.stream().map(itemRequest -> RequestMapper.toResponseDto(itemRequest, UserMapper.toUserDto(itemRequest.getRequester()), itemsMap.get(itemRequest.getId()))
         ).collect(Collectors.toList());
     }
 
@@ -82,14 +77,7 @@ public class RequestServiceImpl implements RequestService {
         Map<Long, List<ItemDto>> itemsMap =
                 getItems(itemRequests.stream().map(Request::getId).collect(Collectors.toSet()));
 
-
-        return itemRequests.stream().map(
-                itemRequest -> RequestMapper.toResponseDto(
-                        itemRequest,
-                        UserMapper.toUserDto(user),
-                        itemsMap.getOrDefault(itemRequest.getId(), List.of())
-                )).collect(Collectors.toList()
-        );
+        return itemRequests.stream().map(itemRequest -> RequestMapper.toResponseDto(itemRequest, UserMapper.toUserDto(user), itemsMap.getOrDefault(itemRequest.getId(), List.of()))).collect(Collectors.toList());
     }
 
     private User checkAndReturnUser(long userId) {
