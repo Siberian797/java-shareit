@@ -44,7 +44,11 @@ public class BookingServiceImpl implements BookingService {
             throw new EntityNotValidException("item", "available");
         }
 
-        if (bookingRequestDto.getStart().isAfter(bookingRequestDto.getEnd()) || bookingRequestDto.getStart().equals(bookingRequestDto.getEnd())) {
+        if (bookingRequestDto.getStart().isAfter(bookingRequestDto.getEnd())) {
+            throw new EntityNotValidException("item", "start");
+        }
+
+        if (bookingRequestDto.getStart().equals(bookingRequestDto.getEnd())) {
             throw new EntityNotValidException("item", "start");
         }
 
@@ -79,12 +83,16 @@ public class BookingServiceImpl implements BookingService {
         getValidUser(userId);
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new EntityNotFoundException("booking", bookingId));
 
-        if (!booking.getStatus().equals(BookingStatus.WAITING) || (booking.getItem() != null && !booking.getItem().getOwner().getId().equals(userId))) {
-            throw new EntityNotValidException("booking", "status/item");
+        if (!booking.getStatus().equals(BookingStatus.WAITING)) {
+            throw new EntityNotValidException("booking", "status");
         }
 
         if (booking.getBooker().getId().equals(userId)) {
             throw new EntityNotFoundException("booking", bookingId);
+        }
+
+        if (!booking.getItem().getOwner().getId().equals(userId)) {
+            throw new EntityNotValidException("booking", "item");
         }
 
         booking.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
