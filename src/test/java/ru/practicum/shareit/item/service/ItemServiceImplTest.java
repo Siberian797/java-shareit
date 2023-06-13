@@ -173,22 +173,6 @@ class ItemServiceImplTest {
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
         ItemRequestDto itemRequestDto = ItemRequestDto.builder().requestId(1L).build();
         assertThrows(EntityNotFoundException.class, () -> itemServiceImpl.createItem(itemRequestDto, 1L));
-        //when(itemServiceImpl.createItem(itemRequestDto, 1L)).thenReturn(ItemDto.builder().id(1L).description("exists").available(true).owner(UserDto.builder().build()).requestId(1L).build());
-//        ItemDto actualCreateItemResult = itemServiceImpl.createItem(itemRequestDto, 1L);
-//        assertTrue(actualCreateItemResult.getAvailable());
-//        assertEquals(1L, actualCreateItemResult.getRequestId().longValue());
-//        assertNull(actualCreateItemResult.getNextBooking());
-//        assertNull(actualCreateItemResult.getComments());
-//        assertEquals(1L, actualCreateItemResult.getId());
-//        assertNull(actualCreateItemResult.getLastBooking());
-//        assertEquals("Name", actualCreateItemResult.getName());
-//        assertEquals("The characteristics of someone or something", actualCreateItemResult.getDescription());
-//        UserDto owner2 = actualCreateItemResult.getOwner();
-//        assertEquals("Name", owner2.getName());
-//        assertEquals(1L, owner2.getId());
-//        assertEquals("jane.doe@example.org", owner2.getEmail());
-//        verify(itemRepository).save(Mockito.any());
-//        verify(userRepository).findById(Mockito.<Long>any());
     }
 
     /**
@@ -1118,6 +1102,16 @@ class ItemServiceImplTest {
         assertEquals(1, itemServiceImpl.getAvailableItemsByText("Text", 1L, null).size());
         verify(itemRepository).findByNameLikeIgnoreCaseOrDescriptionLikeIgnoreCaseAndAvailableOrderByIdDesc(
                 Mockito.any(), anyBoolean(), Mockito.any());
+    }
+
+    /**
+     * Method under test: {@link ItemServiceImpl#getAvailableItemsByText(String, long, PageRequest)}
+     */
+    @Test
+    void testGetAvailableItemsByText3() {
+        when(itemRepository.findByNameLikeIgnoreCaseOrDescriptionLikeIgnoreCaseAndAvailableOrderByIdDesc(
+                Mockito.any(), anyBoolean(), Mockito.any())).thenReturn(new ArrayList<>());
+        assertTrue(itemServiceImpl.getAvailableItemsByText("", 1L, null).isEmpty());
     }
 
     /**
