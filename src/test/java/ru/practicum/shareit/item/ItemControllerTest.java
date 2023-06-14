@@ -133,7 +133,6 @@ class ItemControllerTest {
     }
 
     @Test
-    @SuppressWarnings("unused")
     void updateItem() {
         ItemDto itemDto = itemController.createItem(1L, ItemRequestDto.builder().build());
         ItemDto updated = itemController.updateItem(1L, ItemDto.builder().description("updated").build(), 1L);

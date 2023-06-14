@@ -31,6 +31,8 @@ public class RequestServiceImpl implements RequestService {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final RequestRepository requestRepository;
+    private final ItemMapper itemMapper;
+    private final UserMapper userMapper;
 
     @Override
     public RequestResponseDto createRequest(RequestRequestDto requestDto, long userId) {
@@ -41,7 +43,7 @@ public class RequestServiceImpl implements RequestService {
         itemRequest.setRequester(user);
 
         return RequestMapper.toResponseDto(
-                requestRepository.save(itemRequest), UserMapper.toUserDto(user), new ArrayList<>()
+                requestRepository.save(itemRequest), userMapper.toUserDto(user), new ArrayList<>()
         );
     }
 
@@ -52,7 +54,7 @@ public class RequestServiceImpl implements RequestService {
                 .orElseThrow(() -> new EntityNotFoundException("request", requestId));
 
         return RequestMapper.toResponseDto(
-                itemRequest, UserMapper.toUserDto(itemRequest.getRequester()), getItems(requestId)
+                itemRequest, userMapper.toUserDto(itemRequest.getRequester()), getItems(requestId)
         );
     }
 
@@ -65,7 +67,7 @@ public class RequestServiceImpl implements RequestService {
         Map<Long, List<ItemDto>> itemsMap =
                 getItems(itemRequests.stream().map(Request::getId).collect(Collectors.toSet()));
 
-        return itemRequests.stream().map(itemRequest -> RequestMapper.toResponseDto(itemRequest, UserMapper.toUserDto(itemRequest.getRequester()), itemsMap.get(itemRequest.getId()))
+        return itemRequests.stream().map(itemRequest -> RequestMapper.toResponseDto(itemRequest, userMapper.toUserDto(itemRequest.getRequester()), itemsMap.get(itemRequest.getId()))
         ).collect(Collectors.toList());
     }
 
@@ -77,7 +79,7 @@ public class RequestServiceImpl implements RequestService {
         Map<Long, List<ItemDto>> itemsMap =
                 getItems(itemRequests.stream().map(Request::getId).collect(Collectors.toSet()));
 
-        return itemRequests.stream().map(itemRequest -> RequestMapper.toResponseDto(itemRequest, UserMapper.toUserDto(user), itemsMap.getOrDefault(itemRequest.getId(), List.of()))).collect(Collectors.toList());
+        return itemRequests.stream().map(itemRequest -> RequestMapper.toResponseDto(itemRequest, userMapper.toUserDto(user), itemsMap.getOrDefault(itemRequest.getId(), List.of()))).collect(Collectors.toList());
     }
 
     private User checkAndReturnUser(long userId) {
@@ -87,14 +89,14 @@ public class RequestServiceImpl implements RequestService {
 
     private List<ItemDto> getItems(long requestId) {
         return itemRepository.findByRequestIdOrderByRequestCreatedTimeAsc(requestId).stream()
-                .map(item -> ItemMapper.toItemDto(item, UserMapper.toUserDto(item.getOwner())))
+                .map(item -> itemMapper.toItemDto(item, userMapper.toUserDto(item.getOwner())))
                 .collect(Collectors.toList());
     }
 
     private Map<Long, List<ItemDto>> getItems(Set<Long> requestIds) {
         return itemRepository.findByRequestIdInOrderByRequestCreatedTimeAsc(requestIds)
                 .stream()
-                .map(item -> ItemMapper.toItemDto(item, UserMapper.toUserDto(item.getOwner())))
+                .map(item -> itemMapper.toItemDto(item, userMapper.toUserDto(item.getOwner())))
                 .collect(Collectors.groupingBy(ItemDto::getRequestId));
     }
 }

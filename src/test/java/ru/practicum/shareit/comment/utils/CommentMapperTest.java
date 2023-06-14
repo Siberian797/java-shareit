@@ -24,7 +24,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(SpringExtension.class)
 class CommentMapperTest {
     @Autowired
-    @SuppressWarnings("unused")
     private CommentMapper commentMapper;
 
     /**

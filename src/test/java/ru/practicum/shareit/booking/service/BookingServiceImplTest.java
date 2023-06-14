@@ -19,10 +19,11 @@ import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.EntityNotValidException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.item.utils.ItemMapper;
 import ru.practicum.shareit.request.model.Request;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.utils.UserMapper;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,7 +35,6 @@ import static org.mockito.Mockito.*;
 
 @ContextConfiguration(classes = {BookingServiceImpl.class})
 @ExtendWith(SpringExtension.class)
-@SuppressWarnings("unused")
 class BookingServiceImplTest {
     @MockBean
     private BookingMapper bookingMapper;
@@ -50,6 +50,12 @@ class BookingServiceImplTest {
 
     @MockBean
     private UserRepository userRepository;
+
+    @MockBean
+    private ItemMapper itemMapper;
+
+    @MockBean
+    private UserMapper userMapper;
 
     /**
      * Method under test: {@link BookingServiceImpl#createBooking(BookingRequestDto, long)}
@@ -320,8 +326,6 @@ class BookingServiceImplTest {
         user.setEmail("jane.doe@example.org");
         user.setId(1L);
         user.setName("Name");
-
-        UserDto userDto = UserDto.builder().id(1L).email("jane.doe@example.org").name("Name").build();
 
         Optional<User> ofResult = Optional.of(user);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
@@ -771,18 +775,6 @@ class BookingServiceImplTest {
         verify(booking).setItem(Mockito.any());
         verify(booking).setStart(Mockito.any());
         verify(booking).setStatus(Mockito.any());
-        verify(item2).getAvailable();
-        verify(item2).getId();
-        verify(item2).getDescription();
-        verify(item2).getName();
-        verify(item2, atLeast(1)).getRequest();
-        verify(item2).getOwner();
-        verify(item2).setAvailable(Mockito.<Boolean>any());
-        verify(item2).setDescription(Mockito.any());
-        verify(item2).setId(Mockito.<Long>any());
-        verify(item2).setName(Mockito.any());
-        verify(item2).setOwner(Mockito.any());
-        verify(item2).setRequest(Mockito.any());
     }
 
     /**
@@ -911,24 +903,6 @@ class BookingServiceImplTest {
         verify(booking).setItem(Mockito.any());
         verify(booking).setStart(Mockito.any());
         verify(booking).setStatus(Mockito.any());
-        verify(item2).getAvailable();
-        verify(item2).getId();
-        verify(item2).getDescription();
-        verify(item2).getName();
-        verify(item2, atLeast(1)).getRequest();
-        verify(item2).getOwner();
-        verify(item2).setAvailable(Mockito.<Boolean>any());
-        verify(item2).setDescription(Mockito.any());
-        verify(item2).setId(Mockito.<Long>any());
-        verify(item2).setName(Mockito.any());
-        verify(item2).setOwner(Mockito.any());
-        verify(item2).setRequest(Mockito.any());
-        verify(user2).getId();
-        verify(user2).getEmail();
-        verify(user2).getName();
-        verify(user2).setEmail(Mockito.any());
-        verify(user2).setId(Mockito.<Long>any());
-        verify(user2).setName(Mockito.any());
     }
 
     /**
@@ -1065,7 +1039,6 @@ class BookingServiceImplTest {
         user2.setEmail("jane.doe@example.org");
         user2.setId(1L);
         user2.setName("Name");
-        Optional<User> ofResult2 = Optional.of(user2);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(Optional.ofNullable(User.builder().email("email@mail.com").id(1L).name("name").build()));
         assertThrows(EntityNotFoundException.class, () -> bookingServiceImpl.updateBooking(1L, true, 1L));
         verify(bookingRepository).findById(Mockito.<Long>any());
@@ -2067,34 +2040,10 @@ class BookingServiceImplTest {
         request3.setDescription("The characteristics of someone or something");
         request3.setId(1L);
         request3.setRequester(requester3);
-        Item item2 = mock(Item.class);
-        when(item2.getAvailable()).thenReturn(true);
-        when(item2.getId()).thenReturn(1L);
-        when(item2.getDescription()).thenReturn("The characteristics of someone or something");
-        when(item2.getName()).thenReturn("Name");
-        when(item2.getRequest()).thenReturn(request3);
-        when(item2.getOwner()).thenReturn(user2);
-        doNothing().when(item2).setAvailable(Mockito.<Boolean>any());
-        doNothing().when(item2).setDescription(Mockito.any());
-        doNothing().when(item2).setId(Mockito.<Long>any());
-        doNothing().when(item2).setName(Mockito.any());
-        doNothing().when(item2).setOwner(Mockito.any());
-        doNothing().when(item2).setRequest(Mockito.any());
-        item2.setAvailable(true);
-        item2.setDescription("The characteristics of someone or something");
-        item2.setId(1L);
-        item2.setName("Name");
-        item2.setOwner(owner2);
-        item2.setRequest(request2);
+        Item item2 = Item.builder().available(true).description("The characteristics of someone or something").id(1L).name("Name").owner(owner2).request(request2).build();
         Booking booking = mock(Booking.class);
         when(booking.getItem()).thenReturn(item2);
         when(booking.getBooker()).thenReturn(user);
-        doNothing().when(booking).setBooker(Mockito.any());
-        doNothing().when(booking).setEnd(Mockito.any());
-        doNothing().when(booking).setId(Mockito.<Long>any());
-        doNothing().when(booking).setItem(Mockito.any());
-        doNothing().when(booking).setStart(Mockito.any());
-        doNothing().when(booking).setStatus(Mockito.any());
         booking.setBooker(booker);
         booking.setEnd(LocalDate.of(1970, 1, 1).atStartOfDay());
         booking.setId(1L);
@@ -2124,19 +2073,6 @@ class BookingServiceImplTest {
         verify(booking).setItem(Mockito.any());
         verify(booking).setStart(Mockito.any());
         verify(booking).setStatus(Mockito.any());
-        verify(item2).getAvailable();
-        verify(item2).getId();
-        verify(item2).getDescription();
-        verify(item2).getName();
-        verify(item2, atLeast(1)).getRequest();
-        verify(item2).getOwner();
-        verify(item2).setAvailable(Mockito.<Boolean>any());
-        verify(item2).setDescription(Mockito.any());
-        verify(item2).setId(Mockito.<Long>any());
-        verify(item2).setName(Mockito.any());
-        verify(item2).setOwner(Mockito.any());
-        verify(item2).setRequest(Mockito.any());
-        verify(userRepository).findById(Mockito.<Long>any());
     }
 
     /**
@@ -2217,40 +2153,8 @@ class BookingServiceImplTest {
         request3.setDescription("The characteristics of someone or something");
         request3.setId(1L);
         request3.setRequester(requester3);
-        Item item2 = mock(Item.class);
-        when(item2.getAvailable()).thenReturn(true);
-        when(item2.getId()).thenReturn(1L);
-        when(item2.getDescription()).thenReturn("The characteristics of someone or something");
-        when(item2.getName()).thenReturn("Name");
-        when(item2.getRequest()).thenReturn(request3);
-        when(item2.getOwner()).thenReturn(user2);
-        doNothing().when(item2).setAvailable(Mockito.<Boolean>any());
-        doNothing().when(item2).setDescription(Mockito.any());
-        doNothing().when(item2).setId(Mockito.<Long>any());
-        doNothing().when(item2).setName(Mockito.any());
-        doNothing().when(item2).setOwner(Mockito.any());
-        doNothing().when(item2).setRequest(Mockito.any());
-        item2.setAvailable(true);
-        item2.setDescription("The characteristics of someone or something");
-        item2.setId(1L);
-        item2.setName("Name");
-        item2.setOwner(owner2);
-        item2.setRequest(request2);
-        Booking booking = mock(Booking.class);
-        when(booking.getItem()).thenReturn(item2);
-        when(booking.getBooker()).thenReturn(user);
-        doNothing().when(booking).setBooker(Mockito.any());
-        doNothing().when(booking).setEnd(Mockito.any());
-        doNothing().when(booking).setId(Mockito.<Long>any());
-        doNothing().when(booking).setItem(Mockito.any());
-        doNothing().when(booking).setStart(Mockito.any());
-        doNothing().when(booking).setStatus(Mockito.any());
-        booking.setBooker(booker);
-        booking.setEnd(LocalDate.of(1970, 1, 1).atStartOfDay());
-        booking.setId(1L);
-        booking.setItem(item);
-        booking.setStart(LocalDate.of(1970, 1, 1).atStartOfDay());
-        booking.setStatus(BookingStatus.WAITING);
+        Item item2 = Item.builder().available(true).description("The characteristics of someone or something").id(1L).name("Name").owner(owner2).request(request2).build();
+        Booking booking = Booking.builder().id(1L).end(LocalDate.of(1970, 1, 1).atStartOfDay()).booker(booker).item(item).start(LocalDate.of(1970, 1, 1).atStartOfDay()).status(BookingStatus.WAITING).build();
 
         ArrayList<Booking> bookingList = new ArrayList<>();
         bookingList.add(booking);
@@ -2266,33 +2170,6 @@ class BookingServiceImplTest {
         assertEquals(1, bookingServiceImpl.getBookings(BookingState.ALL, 1L, null).size());
         verify(bookingMapper).toResponseDto(Mockito.any(), Mockito.any(), Mockito.any());
         verify(bookingRepository).findByBookerIdOrderByStartDesc(Mockito.<Long>any(), Mockito.any());
-        verify(booking, atLeast(1)).getItem();
-        verify(booking).getBooker();
-        verify(booking).setBooker(Mockito.any());
-        verify(booking).setEnd(Mockito.any());
-        verify(booking).setId(Mockito.<Long>any());
-        verify(booking).setItem(Mockito.any());
-        verify(booking).setStart(Mockito.any());
-        verify(booking).setStatus(Mockito.any());
-        verify(item2).getAvailable();
-        verify(item2).getId();
-        verify(item2).getDescription();
-        verify(item2).getName();
-        verify(item2, atLeast(1)).getRequest();
-        verify(item2).getOwner();
-        verify(item2).setAvailable(Mockito.<Boolean>any());
-        verify(item2).setDescription(Mockito.any());
-        verify(item2).setId(Mockito.<Long>any());
-        verify(item2).setName(Mockito.any());
-        verify(item2).setOwner(Mockito.any());
-        verify(item2).setRequest(Mockito.any());
-        verify(user2).getId();
-        verify(user2).getEmail();
-        verify(user2).getName();
-        verify(user2).setEmail(Mockito.any());
-        verify(user2).setId(Mockito.<Long>any());
-        verify(user2).setName(Mockito.any());
-        verify(userRepository).findById(Mockito.<Long>any());
     }
 
     /**
@@ -2675,25 +2552,7 @@ class BookingServiceImplTest {
         request3.setDescription("The characteristics of someone or something");
         request3.setId(1L);
         request3.setRequester(requester3);
-        Item item2 = mock(Item.class);
-        when(item2.getAvailable()).thenReturn(true);
-        when(item2.getId()).thenReturn(1L);
-        when(item2.getDescription()).thenReturn("The characteristics of someone or something");
-        when(item2.getName()).thenReturn("Name");
-        when(item2.getRequest()).thenReturn(request3);
-        when(item2.getOwner()).thenReturn(user2);
-        doNothing().when(item2).setAvailable(Mockito.<Boolean>any());
-        doNothing().when(item2).setDescription(Mockito.any());
-        doNothing().when(item2).setId(Mockito.<Long>any());
-        doNothing().when(item2).setName(Mockito.any());
-        doNothing().when(item2).setOwner(Mockito.any());
-        doNothing().when(item2).setRequest(Mockito.any());
-        item2.setAvailable(true);
-        item2.setDescription("The characteristics of someone or something");
-        item2.setId(1L);
-        item2.setName("Name");
-        item2.setOwner(owner2);
-        item2.setRequest(request2);
+        Item item2 = Item.builder().available(true).description("The characteristics of someone or something").id(1L).name("Name").owner(user2).request(request3).build();
         Booking booking = mock(Booking.class);
         when(booking.getItem()).thenReturn(item2);
         when(booking.getBooker()).thenReturn(user);
@@ -2724,27 +2583,6 @@ class BookingServiceImplTest {
         assertEquals(1, bookingServiceImpl.getBookings(BookingState.ALL, 1L, null).size());
         verify(bookingMapper).toResponseDto(Mockito.any(), Mockito.any(), Mockito.any());
         verify(bookingRepository).findByBookerIdOrderByStartDesc(Mockito.<Long>any(), Mockito.any());
-        verify(booking, atLeast(1)).getItem();
-        verify(booking).getBooker();
-        verify(booking).setBooker(Mockito.any());
-        verify(booking).setEnd(Mockito.any());
-        verify(booking).setId(Mockito.<Long>any());
-        verify(booking).setItem(Mockito.any());
-        verify(booking).setStart(Mockito.any());
-        verify(booking).setStatus(Mockito.any());
-        verify(item2).getAvailable();
-        verify(item2).getId();
-        verify(item2).getDescription();
-        verify(item2).getName();
-        verify(item2, atLeast(1)).getRequest();
-        verify(item2).getOwner();
-        verify(item2).setAvailable(Mockito.<Boolean>any());
-        verify(item2).setDescription(Mockito.any());
-        verify(item2).setId(Mockito.<Long>any());
-        verify(item2).setName(Mockito.any());
-        verify(item2).setOwner(Mockito.any());
-        verify(item2).setRequest(Mockito.any());
-        verify(userRepository).findById(Mockito.<Long>any());
     }
 
     /**
@@ -2825,25 +2663,7 @@ class BookingServiceImplTest {
         request3.setDescription("The characteristics of someone or something");
         request3.setId(1L);
         request3.setRequester(requester3);
-        Item item2 = mock(Item.class);
-        when(item2.getAvailable()).thenReturn(true);
-        when(item2.getId()).thenReturn(1L);
-        when(item2.getDescription()).thenReturn("The characteristics of someone or something");
-        when(item2.getName()).thenReturn("Name");
-        when(item2.getRequest()).thenReturn(request3);
-        when(item2.getOwner()).thenReturn(user2);
-        doNothing().when(item2).setAvailable(Mockito.<Boolean>any());
-        doNothing().when(item2).setDescription(Mockito.any());
-        doNothing().when(item2).setId(Mockito.<Long>any());
-        doNothing().when(item2).setName(Mockito.any());
-        doNothing().when(item2).setOwner(Mockito.any());
-        doNothing().when(item2).setRequest(Mockito.any());
-        item2.setAvailable(true);
-        item2.setDescription("The characteristics of someone or something");
-        item2.setId(1L);
-        item2.setName("Name");
-        item2.setOwner(owner2);
-        item2.setRequest(request2);
+        Item item2 = Item.builder().available(true).description("The characteristics of someone or something").id(1L).name("Name").owner(owner2).request(request2).build();
         Booking booking = mock(Booking.class);
         when(booking.getItem()).thenReturn(item2);
         when(booking.getBooker()).thenReturn(user);
@@ -2874,33 +2694,6 @@ class BookingServiceImplTest {
         assertEquals(1, bookingServiceImpl.getBookings(BookingState.ALL, 1L, null).size());
         verify(bookingMapper).toResponseDto(Mockito.any(), Mockito.any(), Mockito.any());
         verify(bookingRepository).findByBookerIdOrderByStartDesc(Mockito.<Long>any(), Mockito.any());
-        verify(booking, atLeast(1)).getItem();
-        verify(booking).getBooker();
-        verify(booking).setBooker(Mockito.any());
-        verify(booking).setEnd(Mockito.any());
-        verify(booking).setId(Mockito.<Long>any());
-        verify(booking).setItem(Mockito.any());
-        verify(booking).setStart(Mockito.any());
-        verify(booking).setStatus(Mockito.any());
-        verify(item2).getAvailable();
-        verify(item2).getId();
-        verify(item2).getDescription();
-        verify(item2).getName();
-        verify(item2, atLeast(1)).getRequest();
-        verify(item2).getOwner();
-        verify(item2).setAvailable(Mockito.<Boolean>any());
-        verify(item2).setDescription(Mockito.any());
-        verify(item2).setId(Mockito.<Long>any());
-        verify(item2).setName(Mockito.any());
-        verify(item2).setOwner(Mockito.any());
-        verify(item2).setRequest(Mockito.any());
-        verify(user2).getId();
-        verify(user2).getEmail();
-        verify(user2).getName();
-        verify(user2).setEmail(Mockito.any());
-        verify(user2).setId(Mockito.<Long>any());
-        verify(user2).setName(Mockito.any());
-        verify(userRepository).findById(Mockito.<Long>any());
     }
 
     /**
@@ -3340,19 +3133,6 @@ class BookingServiceImplTest {
         verify(booking).setItem(Mockito.any());
         verify(booking).setStart(Mockito.any());
         verify(booking).setStatus(Mockito.any());
-        verify(item2).getAvailable();
-        verify(item2).getId();
-        verify(item2).getDescription();
-        verify(item2).getName();
-        verify(item2, atLeast(1)).getRequest();
-        verify(item2).getOwner();
-        verify(item2).setAvailable(Mockito.<Boolean>any());
-        verify(item2).setDescription(Mockito.any());
-        verify(item2).setId(Mockito.<Long>any());
-        verify(item2).setName(Mockito.any());
-        verify(item2).setOwner(Mockito.any());
-        verify(item2).setRequest(Mockito.any());
-        verify(userRepository).findById(Mockito.<Long>any());
     }
 
     /**
@@ -3490,25 +3270,6 @@ class BookingServiceImplTest {
         verify(booking).setItem(Mockito.any());
         verify(booking).setStart(Mockito.any());
         verify(booking).setStatus(Mockito.any());
-        verify(item2).getAvailable();
-        verify(item2).getId();
-        verify(item2).getDescription();
-        verify(item2).getName();
-        verify(item2, atLeast(1)).getRequest();
-        verify(item2).getOwner();
-        verify(item2).setAvailable(Mockito.<Boolean>any());
-        verify(item2).setDescription(Mockito.any());
-        verify(item2).setId(Mockito.<Long>any());
-        verify(item2).setName(Mockito.any());
-        verify(item2).setOwner(Mockito.any());
-        verify(item2).setRequest(Mockito.any());
-        verify(user2).getId();
-        verify(user2).getEmail();
-        verify(user2).getName();
-        verify(user2).setEmail(Mockito.any());
-        verify(user2).setId(Mockito.<Long>any());
-        verify(user2).setName(Mockito.any());
-        verify(userRepository).findById(Mockito.<Long>any());
     }
 
     /**
@@ -4142,19 +3903,6 @@ class BookingServiceImplTest {
         verify(booking).setItem(Mockito.any());
         verify(booking).setStart(Mockito.any());
         verify(booking).setStatus(Mockito.any());
-        verify(item2).getAvailable();
-        verify(item2).getId();
-        verify(item2).getDescription();
-        verify(item2).getName();
-        verify(item2, atLeast(1)).getRequest();
-        verify(item2).getOwner();
-        verify(item2).setAvailable(Mockito.<Boolean>any());
-        verify(item2).setDescription(Mockito.any());
-        verify(item2).setId(Mockito.<Long>any());
-        verify(item2).setName(Mockito.any());
-        verify(item2).setOwner(Mockito.any());
-        verify(item2).setRequest(Mockito.any());
-        verify(userRepository).findById(Mockito.<Long>any());
     }
 
     /**
@@ -4292,24 +4040,5 @@ class BookingServiceImplTest {
         verify(booking).setItem(Mockito.any());
         verify(booking).setStart(Mockito.any());
         verify(booking).setStatus(Mockito.any());
-        verify(item2).getAvailable();
-        verify(item2).getId();
-        verify(item2).getDescription();
-        verify(item2).getName();
-        verify(item2, atLeast(1)).getRequest();
-        verify(item2).getOwner();
-        verify(item2).setAvailable(Mockito.<Boolean>any());
-        verify(item2).setDescription(Mockito.any());
-        verify(item2).setId(Mockito.<Long>any());
-        verify(item2).setName(Mockito.any());
-        verify(item2).setOwner(Mockito.any());
-        verify(item2).setRequest(Mockito.any());
-        verify(user2).getId();
-        verify(user2).getEmail();
-        verify(user2).getName();
-        verify(user2).setEmail(Mockito.any());
-        verify(user2).setId(Mockito.<Long>any());
-        verify(user2).setName(Mockito.any());
-        verify(userRepository).findById(Mockito.<Long>any());
     }
 }

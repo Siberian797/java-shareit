@@ -26,7 +26,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(SpringExtension.class)
 class BookingMapperTest {
     @Autowired
-    @SuppressWarnings("unused")
     private BookingMapper bookingMapper;
 
     /**

@@ -45,19 +45,20 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
     private final BookingMapper bookingMapper;
     private final CommentMapper commentMapper;
-
+    private final ItemMapper itemMapper;
+    private final UserMapper userMapper;
 
     @Override
     @Transactional
     public ItemDto createItem(ItemRequestDto itemRequestDto, long userId) {
         User user = getUser(userId);
-        Item item = ItemMapper.toItem(itemRequestDto, user);
+        Item item = itemMapper.toItem(itemRequestDto, user);
 
         if (Objects.nonNull(itemRequestDto.getRequestId())) {
             Request request = requestRepository.findById(itemRequestDto.getRequestId()).orElseThrow(() -> new EntityNotFoundException("request", itemRequestDto.getRequestId()));
             item.setRequest(request);
         }
-        return ItemMapper.toItemDto(itemRepository.save(item), UserMapper.toUserDto(user));
+        return itemMapper.toItemDto(itemRepository.save(item), userMapper.toUserDto(user));
     }
 
     @Override
@@ -66,8 +67,8 @@ public class ItemServiceImpl implements ItemService {
         Map<Item, List<Booking>> bookings = getBookings(List.of(item));
         Map<Item, List<Comment>> comments = getComments(List.of(item));
 
-        UserDto userDto = UserMapper.toUserDto(item.getOwner());
-        ItemDto itemDto = ItemMapper.toItemDto(item, userDto);
+        UserDto userDto = userMapper.toUserDto(item.getOwner());
+        ItemDto itemDto = itemMapper.toItemDto(item, userDto);
         setBookings(itemDto, requesterId, bookings.get(item), LocalDateTime.now());
         setComments(itemDto, comments.get(item));
 
@@ -92,7 +93,7 @@ public class ItemServiceImpl implements ItemService {
                 .build();
 
         itemRepository.save(updatedItem);
-        return ItemMapper.toItemDto(updatedItem, UserMapper.toUserDto(user));
+        return itemMapper.toItemDto(updatedItem, userMapper.toUserDto(user));
     }
 
     @Override
@@ -104,14 +105,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAllItems(long userId) {
-        UserDto userDto = UserMapper.toUserDto(getUser(userId));
+        UserDto userDto = userMapper.toUserDto(getUser(userId));
         List<Item> items = itemRepository.findByOwnerIdOrderByIdAsc(userId);
         Map<Item, List<Comment>> comments = getComments(items);
         Map<Item, List<Booking>> bookings = getBookings(items);
 
         List<ItemDto> itemDtos = new ArrayList<>();
         for (Item item : items) {
-            ItemDto itemDto = ItemMapper.toItemDto(item, userDto);
+            ItemDto itemDto = itemMapper.toItemDto(item, userDto);
             setBookings(itemDto, userDto.getId(), bookings.get(item), LocalDateTime.now());
             setComments(itemDto, comments.get(item));
             itemDto.setComments(comments.getOrDefault(item,
@@ -129,8 +130,8 @@ public class ItemServiceImpl implements ItemService {
         List<ItemDto> itemDtos = new ArrayList<>();
         for (Item item : itemRepository.findByNameLikeIgnoreCaseOrDescriptionLikeIgnoreCaseAndAvailableOrderByIdDesc(
                 text, true, pageRequest)) {
-            UserDto userDto = UserMapper.toUserDto(item.getOwner());
-            ItemDto itemDto = ItemMapper.toItemDto(item, userDto);
+            UserDto userDto = userMapper.toUserDto(item.getOwner());
+            ItemDto itemDto = itemMapper.toItemDto(item, userDto);
             itemDtos.add(itemDto);
         }
         return itemDtos;
@@ -148,7 +149,7 @@ public class ItemServiceImpl implements ItemService {
         }
 
         return commentMapper.toResponseDto(commentRepository.save(
-                commentMapper.toComment(commentRequestDto, item, user, LocalDateTime.now())), UserMapper.toUserDto(user));
+                commentMapper.toComment(commentRequestDto, item, user, LocalDateTime.now())), userMapper.toUserDto(user));
     }
 
     private User getUser(long userId) {
@@ -171,13 +172,13 @@ public class ItemServiceImpl implements ItemService {
 
             Booking nextBooking = bookings == null ? null : bookings.stream().filter(booking -> booking.getStart().isAfter(now)).findFirst().orElse(null);
 
-            itemDto.setLastBooking(Objects.isNull(lastBooking) ? null : bookingMapper.toItemResponseDto(lastBooking, UserMapper.toUserDto(lastBooking.getBooker())));
-            itemDto.setNextBooking(Objects.isNull(nextBooking) ? null : bookingMapper.toItemResponseDto(nextBooking, UserMapper.toUserDto(nextBooking.getBooker())));
+            itemDto.setLastBooking(Objects.isNull(lastBooking) ? null : bookingMapper.toItemResponseDto(lastBooking, userMapper.toUserDto(lastBooking.getBooker())));
+            itemDto.setNextBooking(Objects.isNull(nextBooking) ? null : bookingMapper.toItemResponseDto(nextBooking, userMapper.toUserDto(nextBooking.getBooker())));
         }
     }
 
     private void setComments(ItemDto itemDto, List<Comment> comments) {
-        itemDto.setComments(comments == null ? List.of() : comments.stream().map(comment -> commentMapper.toResponseDto(comment, UserMapper.toUserDto(comment.getAuthor()))).collect(toList()));
+        itemDto.setComments(comments == null ? List.of() : comments.stream().map(comment -> commentMapper.toResponseDto(comment, userMapper.toUserDto(comment.getAuthor()))).collect(toList()));
     }
 
     private Map<Item, List<Comment>> getComments(List<Item> items) {

@@ -19,8 +19,10 @@ import ru.practicum.shareit.booking.service.BookingServiceImpl;
 import ru.practicum.shareit.booking.status.BookingState;
 import ru.practicum.shareit.booking.utils.BookingMapper;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.item.utils.ItemMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.utils.UserMapper;
 import ru.practicum.shareit.utils.CommonConstants;
 
 import java.util.ArrayList;
@@ -32,13 +34,15 @@ import static org.mockito.Mockito.*;
 
 @ContextConfiguration(classes = {BookingController.class})
 @ExtendWith(SpringExtension.class)
-@SuppressWarnings("unused")
 class BookingControllerTest {
     @Autowired
     private BookingController bookingController;
-
     @MockBean
     private BookingService bookingService;
+    @MockBean
+    private ItemMapper itemMapper;
+    @MockBean
+    private UserMapper userMapper;
 
     /**
      * Method under test: {@link BookingController#createBooking(long, BookingRequestDto)}
@@ -123,7 +127,7 @@ class BookingControllerTest {
         UserRepository userRepository = mock(UserRepository.class);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(Optional.of(user));
         assertTrue((new BookingController(
-                new BookingServiceImpl(new BookingMapper(), bookingRepository, userRepository, mock(ItemRepository.class))))
+                new BookingServiceImpl(new BookingMapper(), bookingRepository, userRepository, mock(ItemRepository.class), itemMapper, userMapper)))
                 .getUserBookings(1L, BookingState.ALL, 1, 3)
                 .isEmpty());
         verify(bookingRepository).findByBookerIdOrderByStartDesc(Mockito.<Long>any(), Mockito.any());
@@ -149,7 +153,7 @@ class BookingControllerTest {
         UserRepository userRepository = mock(UserRepository.class);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(Optional.of(user));
         assertTrue((new BookingController(
-                new BookingServiceImpl(new BookingMapper(), bookingRepository, userRepository, mock(ItemRepository.class))))
+                new BookingServiceImpl(new BookingMapper(), bookingRepository, userRepository, mock(ItemRepository.class), itemMapper, userMapper)))
                 .getUserBookings(1L, BookingState.CURRENT, 1, 3)
                 .isEmpty());
         verify(bookingRepository).findByBookerIdAndStartLessThanAndEndGreaterThanOrderByStartDesc(Mockito.<Long>any(),
@@ -173,7 +177,7 @@ class BookingControllerTest {
         UserRepository userRepository = mock(UserRepository.class);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(Optional.of(user));
         assertTrue((new BookingController(
-                new BookingServiceImpl(new BookingMapper(), bookingRepository, userRepository, mock(ItemRepository.class))))
+                new BookingServiceImpl(new BookingMapper(), bookingRepository, userRepository, mock(ItemRepository.class), itemMapper, userMapper)))
                 .getUserItems(1L, BookingState.ALL, 1, 3)
                 .isEmpty());
         verify(bookingRepository).findByItemOwnerIdOrderByStartDesc(Mockito.<Long>any(), Mockito.any());
@@ -199,7 +203,7 @@ class BookingControllerTest {
         UserRepository userRepository = mock(UserRepository.class);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(Optional.of(user));
         assertTrue((new BookingController(
-                new BookingServiceImpl(new BookingMapper(), bookingRepository, userRepository, mock(ItemRepository.class))))
+                new BookingServiceImpl(new BookingMapper(), bookingRepository, userRepository, mock(ItemRepository.class), itemMapper, userMapper)))
                 .getUserItems(1L, BookingState.CURRENT, 1, 3)
                 .isEmpty());
         verify(bookingRepository).findByItemOwnerIdAndStartLessThanAndEndGreaterThanOrderByStartDesc(Mockito.<Long>any(),

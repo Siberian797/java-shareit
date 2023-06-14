@@ -32,6 +32,8 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final ItemMapper itemMapper;
+    private final UserMapper userMapper;
 
     @Override
     @Transactional
@@ -171,7 +173,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private BookingResponseDto getBookingResponseDto(Booking booking) {
-        return bookingMapper.toResponseDto(booking, UserMapper.toUserDto(booking.getBooker()),
-                ItemMapper.toItemDto(booking.getItem(), UserMapper.toUserDto(booking.getItem().getOwner())));
+        return bookingMapper.toResponseDto(booking, userMapper.toUserDto(booking.getBooker()),
+                itemMapper.toItemDto(booking.getItem(), userMapper.toUserDto(booking.getItem().getOwner())));
     }
 }

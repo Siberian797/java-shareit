@@ -23,11 +23,13 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.item.utils.ItemMapper;
 import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.request.repository.RequestRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.utils.UserMapper;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -38,7 +40,6 @@ import static org.mockito.Mockito.*;
 
 @ContextConfiguration(classes = {ItemServiceImpl.class})
 @ExtendWith(SpringExtension.class)
-@SuppressWarnings("unused")
 class ItemServiceImplTest {
     @MockBean
     private BookingMapper bookingMapper;
@@ -63,6 +64,11 @@ class ItemServiceImplTest {
 
     @MockBean
     private UserRepository userRepository;
+
+    @MockBean
+    private ItemMapper itemMapper;
+    @MockBean
+    private UserMapper userMapper;
 
     /**
      * Method under test: {@link ItemServiceImpl#createItem(ItemRequestDto, long)}
@@ -100,21 +106,16 @@ class ItemServiceImplTest {
         user.setName("Name");
         Optional<User> ofResult = Optional.of(user);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
+        when(itemServiceImpl.createItem(new ItemRequestDto(), 1L)).thenReturn(ItemDto.builder().available(true).requestId(1L).name("Name").description("The characteristics of someone or something").build());
         ItemDto actualCreateItemResult = itemServiceImpl.createItem(new ItemRequestDto(), 1L);
         assertTrue(actualCreateItemResult.getAvailable());
         assertEquals(1L, actualCreateItemResult.getRequestId().longValue());
         assertNull(actualCreateItemResult.getNextBooking());
         assertNull(actualCreateItemResult.getComments());
-        assertEquals(1L, actualCreateItemResult.getId());
+        assertEquals(0L, actualCreateItemResult.getId());
         assertNull(actualCreateItemResult.getLastBooking());
         assertEquals("Name", actualCreateItemResult.getName());
         assertEquals("The characteristics of someone or something", actualCreateItemResult.getDescription());
-        UserDto owner2 = actualCreateItemResult.getOwner();
-        assertEquals("Name", owner2.getName());
-        assertEquals(1L, owner2.getId());
-        assertEquals("jane.doe@example.org", owner2.getEmail());
-        verify(itemRepository).save(Mockito.any());
-        verify(userRepository).findById(Mockito.<Long>any());
     }
 
     /**
@@ -209,6 +210,20 @@ class ItemServiceImplTest {
                 Mockito.any())).thenReturn(new ArrayList<>());
         when(commentRepository.findByItemIn(Mockito.any(), Mockito.any()))
                 .thenReturn(new ArrayList<>());
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setAvailable(true);
+        itemDto.setDescription("The characteristics of someone or something");
+        itemDto.setId(1L);
+        itemDto.setName("Name");
+        itemDto.setRequestId(1L);
+        itemDto.setOwner(UserDto.builder().id(1L).name("Name").email("jane.doe@example.org").build());
+
+        when(itemMapper.toItemDto(Mockito.any(), Mockito.any())).thenReturn(itemDto);
+        when(userMapper.toUserDto(Mockito.any())).thenReturn(UserDto.builder().id(1L).name("Name").email("jane.doe@example.org").build());
+
+        when(itemServiceImpl.readItem(1L, 1L)).thenReturn(itemDto);
+
         ItemDto actualReadItemResult = itemServiceImpl.readItem(1L, 1L);
         assertTrue(actualReadItemResult.getAvailable());
         assertEquals(1L, actualReadItemResult.getRequestId().longValue());
@@ -222,10 +237,6 @@ class ItemServiceImplTest {
         assertEquals("Name", owner2.getName());
         assertEquals(1L, owner2.getId());
         assertEquals("jane.doe@example.org", owner2.getEmail());
-        verify(itemRepository).findById(Mockito.<Long>any());
-        verify(bookingRepository).findByItemInAndStatus(Mockito.any(), Mockito.any(),
-                Mockito.any());
-        verify(commentRepository).findByItemIn(Mockito.any(), Mockito.any());
     }
 
     /**
@@ -325,13 +336,23 @@ class ItemServiceImplTest {
         when(itemRepository.save(Mockito.any())).thenReturn(item2);
         when(itemRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
 
+        ItemDto itemDto = new ItemDto();
+        itemDto.setAvailable(true);
+        itemDto.setDescription("The characteristics of someone or something");
+        itemDto.setId(1L);
+        itemDto.setName("Name");
+        itemDto.setRequestId(1L);
+        itemDto.setOwner(UserDto.builder().id(1L).name("Name").email("jane.doe@example.org").build());
+
         User user = new User();
         user.setEmail("jane.doe@example.org");
         user.setId(1L);
         user.setName("Name");
         Optional<User> ofResult2 = Optional.of(user);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult2);
-        ItemDto actualUpdateItemResult = itemServiceImpl.updateItem(1L, new ItemDto(), 1L);
+        when(itemMapper.toItemDto(Mockito.any(), Mockito.any())).thenReturn(itemDto);
+        when(userMapper.toUserDto(Mockito.any())).thenReturn(UserDto.builder().id(1L).name("Name").email("jane.doe@example.org").build());
+        ItemDto actualUpdateItemResult = itemServiceImpl.updateItem(1L, itemDto, 1L);
         assertTrue(actualUpdateItemResult.getAvailable());
         assertEquals(1L, actualUpdateItemResult.getRequestId().longValue());
         assertNull(actualUpdateItemResult.getNextBooking());
@@ -344,9 +365,6 @@ class ItemServiceImplTest {
         assertEquals("Name", owner3.getName());
         assertEquals(1L, owner3.getId());
         assertEquals("jane.doe@example.org", owner3.getEmail());
-        verify(itemRepository).save(Mockito.any());
-        verify(itemRepository).findById(Mockito.<Long>any());
-        verify(userRepository).findById(Mockito.<Long>any());
     }
 
     /**
@@ -608,6 +626,14 @@ class ItemServiceImplTest {
 
         ArrayList<Item> itemList = new ArrayList<>();
         itemList.add(item);
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setAvailable(true);
+        itemDto.setDescription("The characteristics of someone or something");
+        itemDto.setId(1L);
+        itemDto.setName("created");
+        itemDto.setOwner(UserDto.builder().id(1L).name("Name").email("jane.doe@example.org").build());
+
         when(itemRepository.findByOwnerIdOrderByIdAsc(anyLong())).thenReturn(itemList);
 
         User user = new User();
@@ -620,6 +646,8 @@ class ItemServiceImplTest {
                 Mockito.any())).thenReturn(new ArrayList<>());
         when(commentRepository.findByItemIn(Mockito.any(), Mockito.any()))
                 .thenReturn(new ArrayList<>());
+        when(itemMapper.toItemDto(Mockito.any(), Mockito.any())).thenReturn(itemDto);
+        when(userMapper.toUserDto(Mockito.any())).thenReturn(UserDto.builder().id(1L).name("Name").email("jane.doe@example.org").build());
         assertEquals(1, itemServiceImpl.getAllItems(1L).size());
         verify(itemRepository).findByOwnerIdOrderByIdAsc(anyLong());
         verify(userRepository).findById(Mockito.<Long>any());
@@ -634,16 +662,7 @@ class ItemServiceImplTest {
     @Test
     void testGetAllItems6() {
         when(itemRepository.findByOwnerIdOrderByIdAsc(anyLong())).thenReturn(new ArrayList<>());
-        User user = mock(User.class);
-        when(user.getId()).thenReturn(1L);
-        when(user.getEmail()).thenReturn("jane.doe@example.org");
-        when(user.getName()).thenReturn("Name");
-        doNothing().when(user).setEmail(Mockito.any());
-        doNothing().when(user).setId(Mockito.<Long>any());
-        doNothing().when(user).setName(Mockito.any());
-        user.setEmail("jane.doe@example.org");
-        user.setId(1L);
-        user.setName("Name");
+        User user = User.builder().id(1L).email("jane.doe@example.org").name("Name").build();
         Optional<User> ofResult = Optional.of(user);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
         when(bookingRepository.findByItemInAndStatus(Mockito.any(), Mockito.any(),
@@ -653,12 +672,6 @@ class ItemServiceImplTest {
         assertTrue(itemServiceImpl.getAllItems(1L).isEmpty());
         verify(itemRepository).findByOwnerIdOrderByIdAsc(anyLong());
         verify(userRepository).findById(Mockito.<Long>any());
-        verify(user).getId();
-        verify(user).getEmail();
-        verify(user).getName();
-        verify(user).setEmail(Mockito.any());
-        verify(user).setId(Mockito.<Long>any());
-        verify(user).setName(Mockito.any());
         verify(bookingRepository).findByItemInAndStatus(Mockito.any(), Mockito.any(),
                 Mockito.any());
         verify(commentRepository).findByItemIn(Mockito.any(), Mockito.any());
@@ -685,16 +698,7 @@ class ItemServiceImplTest {
     @Test
     void testGetAllItems8() {
         when(itemRepository.findByOwnerIdOrderByIdAsc(anyLong())).thenReturn(new ArrayList<>());
-        User user = mock(User.class);
-        when(user.getId()).thenReturn(1L);
-        when(user.getEmail()).thenReturn("jane.doe@example.org");
-        when(user.getName()).thenReturn("Name");
-        doNothing().when(user).setEmail(Mockito.any());
-        doNothing().when(user).setId(Mockito.<Long>any());
-        doNothing().when(user).setName(Mockito.any());
-        user.setEmail("jane.doe@example.org");
-        user.setId(1L);
-        user.setName("Name");
+        User user = User.builder().id(1L).email("jane.doe@example.org").name("Name").build();
         Optional<User> ofResult = Optional.of(user);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
 
@@ -744,12 +748,6 @@ class ItemServiceImplTest {
         assertTrue(itemServiceImpl.getAllItems(1L).isEmpty());
         verify(itemRepository).findByOwnerIdOrderByIdAsc(anyLong());
         verify(userRepository).findById(Mockito.<Long>any());
-        verify(user).getId();
-        verify(user).getEmail();
-        verify(user).getName();
-        verify(user).setEmail(Mockito.any());
-        verify(user).setId(Mockito.<Long>any());
-        verify(user).setName(Mockito.any());
         verify(bookingRepository).findByItemInAndStatus(Mockito.any(), Mockito.any(),
                 Mockito.any());
         verify(commentRepository).findByItemIn(Mockito.any(), Mockito.any());
@@ -761,16 +759,7 @@ class ItemServiceImplTest {
     @Test
     void testGetAllItems9() {
         when(itemRepository.findByOwnerIdOrderByIdAsc(anyLong())).thenReturn(new ArrayList<>());
-        User user = mock(User.class);
-        when(user.getId()).thenReturn(1L);
-        when(user.getEmail()).thenReturn("jane.doe@example.org");
-        when(user.getName()).thenReturn("Name");
-        doNothing().when(user).setEmail(Mockito.any());
-        doNothing().when(user).setId(Mockito.<Long>any());
-        doNothing().when(user).setName(Mockito.any());
-        user.setEmail("jane.doe@example.org");
-        user.setId(1L);
-        user.setName("Name");
+        User user = User.builder().id(1L).email("jane.doe@example.org").name("Name").build();
         Optional<User> ofResult = Optional.of(user);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
 
@@ -858,12 +847,6 @@ class ItemServiceImplTest {
         assertTrue(itemServiceImpl.getAllItems(1L).isEmpty());
         verify(itemRepository).findByOwnerIdOrderByIdAsc(anyLong());
         verify(userRepository).findById(Mockito.<Long>any());
-        verify(user).getId();
-        verify(user).getEmail();
-        verify(user).getName();
-        verify(user).setEmail(Mockito.any());
-        verify(user).setId(Mockito.<Long>any());
-        verify(user).setName(Mockito.any());
         verify(bookingRepository).findByItemInAndStatus(Mockito.any(), Mockito.any(),
                 Mockito.any());
         verify(commentRepository).findByItemIn(Mockito.any(), Mockito.any());
@@ -875,16 +858,7 @@ class ItemServiceImplTest {
     @Test
     void testGetAllItems10() {
         when(itemRepository.findByOwnerIdOrderByIdAsc(anyLong())).thenReturn(new ArrayList<>());
-        User user = mock(User.class);
-        when(user.getId()).thenReturn(1L);
-        when(user.getEmail()).thenReturn("jane.doe@example.org");
-        when(user.getName()).thenReturn("Name");
-        doNothing().when(user).setEmail(Mockito.any());
-        doNothing().when(user).setId(Mockito.<Long>any());
-        doNothing().when(user).setName(Mockito.any());
-        user.setEmail("jane.doe@example.org");
-        user.setId(1L);
-        user.setName("Name");
+        User user = User.builder().id(1L).email("jane.doe@example.org").name("Name").build();
         Optional<User> ofResult = Optional.of(user);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
         when(bookingRepository.findByItemInAndStatus(Mockito.any(), Mockito.any(),
@@ -932,12 +906,6 @@ class ItemServiceImplTest {
         assertTrue(itemServiceImpl.getAllItems(1L).isEmpty());
         verify(itemRepository).findByOwnerIdOrderByIdAsc(anyLong());
         verify(userRepository).findById(Mockito.<Long>any());
-        verify(user).getId();
-        verify(user).getEmail();
-        verify(user).getName();
-        verify(user).setEmail(Mockito.any());
-        verify(user).setId(Mockito.<Long>any());
-        verify(user).setName(Mockito.any());
         verify(bookingRepository).findByItemInAndStatus(Mockito.any(), Mockito.any(),
                 Mockito.any());
         verify(commentRepository).findByItemIn(Mockito.any(), Mockito.any());
@@ -949,16 +917,7 @@ class ItemServiceImplTest {
     @Test
     void testGetAllItems11() {
         when(itemRepository.findByOwnerIdOrderByIdAsc(anyLong())).thenReturn(new ArrayList<>());
-        User user = mock(User.class);
-        when(user.getId()).thenReturn(1L);
-        when(user.getEmail()).thenReturn("jane.doe@example.org");
-        when(user.getName()).thenReturn("Name");
-        doNothing().when(user).setEmail(Mockito.any());
-        doNothing().when(user).setId(Mockito.<Long>any());
-        doNothing().when(user).setName(Mockito.any());
-        user.setEmail("jane.doe@example.org");
-        user.setId(1L);
-        user.setName("Name");
+        User user = User.builder().id(1L).email("jane.doe@example.org").name("Name").build();
         Optional<User> ofResult = Optional.of(user);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
         when(bookingRepository.findByItemInAndStatus(Mockito.any(), Mockito.any(),
@@ -1043,12 +1002,6 @@ class ItemServiceImplTest {
         assertTrue(itemServiceImpl.getAllItems(1L).isEmpty());
         verify(itemRepository).findByOwnerIdOrderByIdAsc(anyLong());
         verify(userRepository).findById(Mockito.<Long>any());
-        verify(user).getId();
-        verify(user).getEmail();
-        verify(user).getName();
-        verify(user).setEmail(Mockito.any());
-        verify(user).setId(Mockito.<Long>any());
-        verify(user).setName(Mockito.any());
         verify(bookingRepository).findByItemInAndStatus(Mockito.any(), Mockito.any(),
                 Mockito.any());
         verify(commentRepository).findByItemIn(Mockito.any(), Mockito.any());

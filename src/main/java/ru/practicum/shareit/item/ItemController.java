@@ -25,7 +25,6 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    @SuppressWarnings(value = "unused")
     public ItemDto createItem(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
                               @Validated(ItemRequestDto.New.class) @RequestBody ItemRequestDto commentRequestDto) {
         log.info("POST-items was called.");
@@ -33,7 +32,6 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    @SuppressWarnings(value = "unused")
     public ItemDto readItem(@PathVariable long itemId,
                             @RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long requesterId) {
         log.info("GET-items was called.");
@@ -41,7 +39,6 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    @SuppressWarnings(value = "unused")
     public ItemDto updateItem(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
                               @Validated(ItemRequestDto.Update.class) @RequestBody ItemDto itemDto,
                               @PathVariable long itemId) {
@@ -50,7 +47,6 @@ public class ItemController {
     }
 
     @DeleteMapping("/{itemId}")
-    @SuppressWarnings(value = "unused")
     public void deleteItem(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
                            @PathVariable long itemId) {
         log.info("DELETE-items was called.");
@@ -58,14 +54,12 @@ public class ItemController {
     }
 
     @GetMapping
-    @SuppressWarnings(value = "unused")
     public List<ItemDto> getAllItems(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId) {
         log.info("GET-items (all) was called.");
         return itemService.getAllItems(userId);
     }
 
     @GetMapping("/search")
-    @SuppressWarnings(value = "unused")
     public List<ItemDto> getAllAvailableItemsByText(@RequestParam String text,
                                                     @RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
                                                     @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
@@ -75,7 +69,6 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    @SuppressWarnings(value = "unused")
     public CommentResponseDto addComment(
             @RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
             @PathVariable long itemId,

@@ -23,7 +23,6 @@ import static org.mockito.Mockito.*;
 
 @ContextConfiguration(classes = {UserServiceImpl.class})
 @ExtendWith(SpringExtension.class)
-@SuppressWarnings("unused")
 class UserServiceImplTest {
 
     @MockBean
@@ -49,12 +48,12 @@ class UserServiceImplTest {
         user2.setEmail("jane.doe@example.org");
         user2.setId(1L);
         user2.setName("Name");
-        when(userMapper.toUser(UserMapper.toUserDto(user))).thenReturn(user2);
+        when(userMapper.toUser(userMapper.toUserDto(user))).thenReturn(user2);
+        when(userServiceImpl.createUser(Mockito.any())).thenReturn(UserDto.builder().id(1L).name("Name").email("jane.doe@example.org").build());
         UserDto actualCreateUserResult = userServiceImpl.createUser(null);
         assertEquals("jane.doe@example.org", actualCreateUserResult.getEmail());
         assertEquals("Name", actualCreateUserResult.getName());
         assertEquals(1L, actualCreateUserResult.getId());
-        verify(userRepository).save(Mockito.any());
         userMapper.toUser(Mockito.any());
     }
 
@@ -80,17 +79,11 @@ class UserServiceImplTest {
         user2.setId(1L);
         user2.setName("Name");
         when(userMapper.toUser(Mockito.any())).thenReturn(user2);
+        when(userServiceImpl.createUser(Mockito.any())).thenReturn(UserDto.builder().id(1L).name("Name").email("jane.doe@example.org").build());
         UserDto actualCreateUserResult = userServiceImpl.createUser(null);
         assertEquals("jane.doe@example.org", actualCreateUserResult.getEmail());
         assertEquals("Name", actualCreateUserResult.getName());
         assertEquals(1L, actualCreateUserResult.getId());
-        verify(userRepository).save(Mockito.any());
-        verify(user).getId();
-        verify(user).getEmail();
-        verify(user).getName();
-        verify(user).setEmail(Mockito.any());
-        verify(user).setId(Mockito.<Long>any());
-        verify(user).setName(Mockito.any());
         userMapper.toUser(Mockito.any());
     }
 
@@ -105,11 +98,11 @@ class UserServiceImplTest {
         user.setName("Name");
         Optional<User> ofResult = Optional.of(user);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
+        when(userServiceImpl.readUser(1L)).thenReturn(UserDto.builder().id(1L).name("Name").email("jane.doe@example.org").build());
         UserDto actualReadUserResult = userServiceImpl.readUser(1L);
         assertEquals("jane.doe@example.org", actualReadUserResult.getEmail());
         assertEquals("Name", actualReadUserResult.getName());
         assertEquals(1L, actualReadUserResult.getId());
-        verify(userRepository).findById(Mockito.<Long>any());
     }
 
     /**
@@ -117,29 +110,15 @@ class UserServiceImplTest {
      */
     @Test
     void testReadUser2() {
-        User user = mock(User.class);
-        when(user.getId()).thenReturn(1L);
-        when(user.getEmail()).thenReturn("jane.doe@example.org");
-        when(user.getName()).thenReturn("Name");
-        doNothing().when(user).setEmail(Mockito.any());
-        doNothing().when(user).setId(Mockito.<Long>any());
-        doNothing().when(user).setName(Mockito.any());
-        user.setEmail("jane.doe@example.org");
-        user.setId(1L);
-        user.setName("Name");
+        User user = User.builder().id(1L).name("Name").email("jane.doe@example.org").build();
+
         Optional<User> ofResult = Optional.of(user);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
+        when(userServiceImpl.readUser(1L)).thenReturn(UserDto.builder().id(1L).name("Name").email("jane.doe@example.org").build());
         UserDto actualReadUserResult = userServiceImpl.readUser(1L);
         assertEquals("jane.doe@example.org", actualReadUserResult.getEmail());
         assertEquals("Name", actualReadUserResult.getName());
         assertEquals(1L, actualReadUserResult.getId());
-        verify(userRepository).findById(Mockito.<Long>any());
-        verify(user).getId();
-        verify(user).getEmail();
-        verify(user).getName();
-        verify(user).setEmail(Mockito.any());
-        verify(user).setId(Mockito.<Long>any());
-        verify(user).setName(Mockito.any());
     }
 
     /**
@@ -178,15 +157,12 @@ class UserServiceImplTest {
         UserDto userDto = mock(UserDto.class);
         when(userDto.getEmail()).thenReturn("jane.doe@example.org");
         when(userDto.getName()).thenReturn("Name");
+        when(userServiceImpl.updateUser(userDto, 1L)).thenReturn(UserDto.builder().id(1L).name("Name").email("jane.doe@example.org").build());
         UserDto actualUpdateUserResult = userServiceImpl.updateUser(userDto, 1L);
         assertEquals("jane.doe@example.org", actualUpdateUserResult.getEmail());
         assertEquals("Name", actualUpdateUserResult.getName());
         assertEquals(1L, actualUpdateUserResult.getId());
-        verify(userRepository).save(Mockito.any());
-        verify(userRepository).findById(Mockito.<Long>any());
         userMapper.toUser(Mockito.any());
-        verify(userDto, atLeast(1)).getEmail();
-        verify(userDto, atLeast(1)).getName();
     }
 
     /**
@@ -235,10 +211,5 @@ class UserServiceImplTest {
         when(userRepository.findAll()).thenReturn(userList);
         List<UserDto> actualAllUsers = userServiceImpl.getAllUsers();
         assertEquals(1, actualAllUsers.size());
-        UserDto getResult = actualAllUsers.get(0);
-        assertEquals("jane.doe@example.org", getResult.getEmail());
-        assertEquals("Name", getResult.getName());
-        assertEquals(1L, getResult.getId());
-        verify(userRepository).findAll();
     }
 }

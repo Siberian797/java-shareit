@@ -25,7 +25,6 @@ import static org.mockito.Mockito.when;
 
 @ContextConfiguration(classes = {RequestController.class})
 @ExtendWith(SpringExtension.class)
-@SuppressWarnings("unused")
 class RequestControllerTest {
     @Autowired
     private RequestController requestController;

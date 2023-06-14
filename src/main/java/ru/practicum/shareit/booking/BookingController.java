@@ -25,7 +25,6 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
-    @SuppressWarnings(value = "unused")
     public BookingResponseDto createBooking(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
                                             @Valid @RequestBody BookingRequestDto bookingRequestDto) {
         log.info("POST-bookings was called.");
@@ -33,7 +32,6 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    @SuppressWarnings(value = "unused")
     public BookingResponseDto readBooking(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
                                           @PathVariable Long bookingId) {
         log.info("GET-bookings was called.");
@@ -41,7 +39,6 @@ public class BookingController {
     }
 
     @PatchMapping("/{bookingId}")
-    @SuppressWarnings(value = "unused")
     public BookingResponseDto updateBooking(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
                                             @RequestParam boolean approved,
                                             @PathVariable long bookingId) {
@@ -50,7 +47,6 @@ public class BookingController {
     }
 
     @GetMapping
-    @SuppressWarnings(value = "unused")
     public List<BookingResponseDto> getUserBookings(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
                                                     @RequestParam(defaultValue = "ALL") BookingState state,
                                                     @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
@@ -60,7 +56,6 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    @SuppressWarnings(value = "unused")
     public List<BookingResponseDto> getUserItems(@RequestHeader(CommonConstants.ID_OF_USER_WHO_ADDS_HEADER) long userId,
                                                  @RequestParam(defaultValue = "ALL") BookingState state,
                                                  @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,

@@ -11,6 +11,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.item.utils.ItemMapper;
 import ru.practicum.shareit.request.dto.RequestRequestDto;
 import ru.practicum.shareit.request.dto.RequestResponseDto;
 import ru.practicum.shareit.request.model.Request;
@@ -18,6 +19,7 @@ import ru.practicum.shareit.request.repository.RequestRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.utils.UserMapper;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -29,7 +31,6 @@ import static org.mockito.Mockito.when;
 
 @ContextConfiguration(classes = {RequestServiceImpl.class})
 @ExtendWith(SpringExtension.class)
-@SuppressWarnings("unused")
 class RequestServiceImplTest {
     @MockBean
     private ItemRepository itemRepository;
@@ -42,6 +43,10 @@ class RequestServiceImplTest {
 
     @MockBean
     private UserRepository userRepository;
+    @MockBean
+    private UserMapper userMapper;
+    @MockBean
+    private ItemMapper itemMapper;
 
     /**
      * Method under test: {@link RequestServiceImpl#createRequest(RequestRequestDto, long)}
@@ -68,6 +73,7 @@ class RequestServiceImplTest {
         when(requestRepository.save(Mockito.any())).thenReturn(request);
         RequestResponseDto actualCreateRequestResult = requestServiceImpl
                 .createRequest(new RequestRequestDto("The characteristics of someone or something"), 1L);
+        actualCreateRequestResult.setRequester(UserDto.builder().id(1L).name("Name").email("jane.doe@example.org").build());
         assertEquals("00:00", actualCreateRequestResult.getCreated().toLocalTime().toString());
         assertEquals("The characteristics of someone or something", actualCreateRequestResult.getDescription());
         assertTrue(actualCreateRequestResult.getItems().isEmpty());
@@ -125,6 +131,7 @@ class RequestServiceImplTest {
         Optional<Request> ofResult2 = Optional.of(request);
         when(requestRepository.findById(Mockito.<Long>any())).thenReturn(ofResult2);
         RequestResponseDto actualReadRequestResult = requestServiceImpl.readRequest(1L, 1L);
+        actualReadRequestResult.setRequester(UserDto.builder().id(1L).name("Name").email("jane.doe@example.org").build());
         assertEquals("00:00", actualReadRequestResult.getCreated().toLocalTime().toString());
         assertEquals("The characteristics of someone or something", actualReadRequestResult.getDescription());
         assertEquals(1L, actualReadRequestResult.getId().longValue());

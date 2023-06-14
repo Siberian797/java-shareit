@@ -16,7 +16,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(SpringExtension.class)
 class UserMapperTest {
     @Autowired
-    @SuppressWarnings("unused")
     private UserMapper userMapper;
 
     /**
@@ -28,7 +27,7 @@ class UserMapperTest {
         user.setEmail("jane.doe@example.org");
         user.setId(1L);
         user.setName("Name");
-        UserDto actualToUserDtoResult = UserMapper.toUserDto(user);
+        UserDto actualToUserDtoResult = userMapper.toUserDto(user);
         assertEquals("jane.doe@example.org", actualToUserDtoResult.getEmail());
         assertEquals("Name", actualToUserDtoResult.getName());
         assertEquals(1L, actualToUserDtoResult.getId());
@@ -49,7 +48,7 @@ class UserMapperTest {
         user.setEmail("jane.doe@example.org");
         user.setId(1L);
         user.setName("Name");
-        UserDto actualToUserDtoResult = UserMapper.toUserDto(user);
+        UserDto actualToUserDtoResult = userMapper.toUserDto(user);
         assertEquals("jane.doe@example.org", actualToUserDtoResult.getEmail());
         assertEquals("Name", actualToUserDtoResult.getName());
         assertEquals(1L, actualToUserDtoResult.getId());

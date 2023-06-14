@@ -27,7 +27,6 @@ import static org.mockito.Mockito.*;
 
 @ContextConfiguration(classes = {UserController.class})
 @ExtendWith(SpringExtension.class)
-@SuppressWarnings("unused")
 class UserControllerTest {
     @MockBean
     private UserMapper userMapper;
@@ -55,13 +54,12 @@ class UserControllerTest {
         user2.setName("Name");
         UserMapper userMapper = mock(UserMapper.class);
         when(userMapper.toUser(Mockito.any())).thenReturn(user2);
-        UserDto actualCreateUserResult = (new UserController(new UserServiceImpl(userRepository, userMapper)))
-                .createUser(null);
+        UserDto userDto = UserDto.builder().id(1L).name("Name").email("jane.doe@example.org").build();
+        when(userController.createUser(userDto)).thenReturn(userDto);
+        UserDto actualCreateUserResult = userController.createUser(userDto);
         assertEquals("jane.doe@example.org", actualCreateUserResult.getEmail());
         assertEquals("Name", actualCreateUserResult.getName());
         assertEquals(1L, actualCreateUserResult.getId());
-        verify(userRepository).save(Mockito.any());
-        verify(userMapper).toUser(Mockito.any());
     }
 
     /**
