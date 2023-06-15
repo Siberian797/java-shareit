@@ -16,8 +16,8 @@ import ru.practicum.shareit.request.utils.RequestMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.utils.UserMapper;
+import ru.practicum.shareit.utils.DateUtils;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +39,7 @@ public class RequestServiceImpl implements RequestService {
         User user = checkAndReturnUser(userId);
         Request itemRequest = RequestMapper.toItemRequest(requestDto);
 
-        itemRequest.setCreatedTime(LocalDateTime.now());
+        itemRequest.setCreatedTime(DateUtils.getCurrentTime());
         itemRequest.setRequester(user);
 
         return RequestMapper.toResponseDto(

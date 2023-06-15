@@ -27,6 +27,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.utils.UserMapper;
+import ru.practicum.shareit.utils.DateUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -69,7 +70,7 @@ public class ItemServiceImpl implements ItemService {
 
         UserDto userDto = userMapper.toUserDto(item.getOwner());
         ItemDto itemDto = itemMapper.toItemDto(item, userDto);
-        setBookings(itemDto, requesterId, bookings.get(item), LocalDateTime.now());
+        setBookings(itemDto, requesterId, bookings.get(item), DateUtils.getCurrentTime());
         setComments(itemDto, comments.get(item));
 
         return itemDto;
@@ -113,7 +114,7 @@ public class ItemServiceImpl implements ItemService {
         List<ItemDto> itemDtos = new ArrayList<>();
         for (Item item : items) {
             ItemDto itemDto = itemMapper.toItemDto(item, userDto);
-            setBookings(itemDto, userDto.getId(), bookings.get(item), LocalDateTime.now());
+            setBookings(itemDto, userDto.getId(), bookings.get(item), DateUtils.getCurrentTime());
             setComments(itemDto, comments.get(item));
             itemDto.setComments(comments.getOrDefault(item,
                     List.of()).stream().map(e -> commentMapper.toResponseDto(e, userDto)).collect(toList()));
@@ -143,13 +144,13 @@ public class ItemServiceImpl implements ItemService {
         User user = getUser(userId);
         Item item = getItem(itemId);
 
-        if (!bookingRepository.existsByItemIdAndBookerIdAndEndLessThanAndStatus(itemId, userId, LocalDateTime.now(),
+        if (!bookingRepository.existsByItemIdAndBookerIdAndEndLessThanAndStatus(itemId, userId, DateUtils.getCurrentTime(),
                 BookingStatus.APPROVED)) {
             throw new EntityNotValidException("item", "bookings");
         }
 
         return commentMapper.toResponseDto(commentRepository.save(
-                commentMapper.toComment(commentRequestDto, item, user, LocalDateTime.now())), userMapper.toUserDto(user));
+                commentMapper.toComment(commentRequestDto, item, user, DateUtils.getCurrentTime())), userMapper.toUserDto(user));
     }
 
     private User getUser(long userId) {
