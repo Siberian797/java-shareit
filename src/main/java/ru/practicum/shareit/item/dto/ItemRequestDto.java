@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Getter
 @Setter
@@ -11,10 +12,22 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemRequestDto {
-    @NotBlank
+    @NotBlank(groups = {ItemRequestDto.New.class})
+    @Size(groups = {ItemRequestDto.Update.class, ItemRequestDto.New.class}, min = 1)
     private String name;
-    @NotBlank
+
+    @NotBlank(groups = {ItemRequestDto.New.class})
+    @Size(groups = {ItemRequestDto.Update.class, ItemRequestDto.New.class}, min = 1)
     private String description;
-    @NotNull
+
+    @NotNull(groups = {ItemRequestDto.New.class})
     private Boolean available;
+
+    private Long requestId;
+
+    public interface New {
+    }
+
+    public interface Update {
+    }
 }

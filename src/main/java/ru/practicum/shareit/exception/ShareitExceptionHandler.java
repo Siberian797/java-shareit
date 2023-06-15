@@ -12,11 +12,9 @@ import java.util.Map;
 
 @RestControllerAdvice
 @Slf4j
-@SuppressWarnings("unused")
 public class ShareitExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler
-    @SuppressWarnings(value = "unused")
     public Map<String, String> handleNotExistingFilm(final MethodArgumentTypeMismatchException e) {
         log.debug("Server got bad request: {}", e.getMessage(), e);
         return Map.of("error", "Unknown " + e.getName() + ": " + e.getValue());
@@ -24,7 +22,6 @@ public class ShareitExceptionHandler {
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler
-    @SuppressWarnings(value = "unused")
     public Map<String, String> handleNotFoundEntity(final EntityNotFoundException e) {
         log.debug("Server was unable to find: {}", e.getMessage());
         return Map.of("error", e.getMessage());
@@ -32,7 +29,6 @@ public class ShareitExceptionHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler
-    @SuppressWarnings(value = "unused")
     public Map<String, String> handleNotValidEntity(final EntityNotValidException e) {
         log.debug("Server got bad parameter: {}", e.getMessage());
         return Map.of("error", e.getMessage());
@@ -40,7 +36,6 @@ public class ShareitExceptionHandler {
 
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler
-    @SuppressWarnings(value = "unused")
     public Map<String, String> handleDuplicatedEntity(final EntityDuplicateException e) {
         log.debug("Server got bad parameter: {}", e.getMessage());
         return Map.of("error", e.getMessage());
@@ -56,7 +51,6 @@ public class ShareitExceptionHandler {
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler
-    @SuppressWarnings(value = "unused")
     public Map<String, String> handleUnprocessedExceptions(final Throwable e) {
         log.debug("Server got bad parameter: {}", e.getMessage());
         return Map.of("error", e.getMessage());
