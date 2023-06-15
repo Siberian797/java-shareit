@@ -19,6 +19,7 @@ import ru.practicum.shareit.item.utils.ItemMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.utils.UserMapper;
+import ru.practicum.shareit.utils.DateUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -105,7 +106,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingResponseDto> getBookings(BookingState state, long userId, PageRequest pageRequest) {
         getValidUser(userId);
-        LocalDateTime currentTime = LocalDateTime.now();
+        LocalDateTime currentTime = DateUtils.getCurrentTime();
 
         List<Booking> bookings;
 
@@ -138,7 +139,7 @@ public class BookingServiceImpl implements BookingService {
         getValidUser(ownerId);
 
         List<Booking> bookings;
-        LocalDateTime currentTime = LocalDateTime.now();
+        LocalDateTime currentTime = DateUtils.getCurrentTime();
 
         switch (state) {
             case CURRENT:

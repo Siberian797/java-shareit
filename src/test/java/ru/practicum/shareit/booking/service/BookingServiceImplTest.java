@@ -89,7 +89,8 @@ class BookingServiceImplTest {
      * Method under test: {@link BookingServiceImpl#createBooking(BookingRequestDto, long)}
      */
     @Test
-    void testCreateBooking() {Optional<User> ofResult = Optional.of(defaultUser);
+    void testCreateBooking() {
+        Optional<User> ofResult = Optional.of(defaultUser);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
         when(itemRepository.findById(Mockito.<Long>any())).thenThrow(new EntityNotValidException("item", "item"));
         assertThrows(EntityNotValidException.class, () -> bookingServiceImpl.createBooking(new BookingRequestDto(), 1L));
@@ -114,7 +115,8 @@ class BookingServiceImplTest {
      * Method under test: {@link BookingServiceImpl#createBooking(BookingRequestDto, long)}
      */
     @Test
-    void testCreateBooking3() {Optional<User> ofResult = Optional.of(defaultUser);
+    void testCreateBooking3() {
+        Optional<User> ofResult = Optional.of(defaultUser);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
         when(itemRepository.findById(Mockito.<Long>any())).thenReturn(Optional.empty());
         assertThrows(EntityNotFoundException.class, () -> bookingServiceImpl.createBooking(new BookingRequestDto(), 1L));
@@ -126,7 +128,8 @@ class BookingServiceImplTest {
      * Method under test: {@link BookingServiceImpl#createBooking(BookingRequestDto, long)}
      */
     @Test
-    void testCreateBooking4() {Optional<User> ofResult = Optional.of(defaultUser);
+    void testCreateBooking4() {
+        Optional<User> ofResult = Optional.of(defaultUser);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
 
         Optional<Item> ofResult2 = Optional.of(defaultItem);
@@ -142,7 +145,8 @@ class BookingServiceImplTest {
      * Method under test: {@link BookingServiceImpl#createBooking(BookingRequestDto, long)}
      */
     @Test
-    void testCreateBooking5() {Optional<User> ofResult = Optional.of(defaultUser);
+    void testCreateBooking5() {
+        Optional<User> ofResult = Optional.of(defaultUser);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
 
         Optional<Item> ofResult2 = Optional.of(defaultItem);
@@ -158,7 +162,8 @@ class BookingServiceImplTest {
      * Method under test: {@link BookingServiceImpl#createBooking(BookingRequestDto, long)}
      */
     @Test
-    void testCreateBooking6() {Optional<User> ofResult = Optional.of(defaultUser);
+    void testCreateBooking6() {
+        Optional<User> ofResult = Optional.of(defaultUser);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
 
         Item item = mock(Item.class);
@@ -176,7 +181,8 @@ class BookingServiceImplTest {
      * Method under test: {@link BookingServiceImpl#createBooking(BookingRequestDto, long)}
      */
     @Test
-    void testCreateBooking7() {Optional<User> ofResult = Optional.of(defaultUser);
+    void testCreateBooking7() {
+        Optional<User> ofResult = Optional.of(defaultUser);
         when(userRepository.findById(Mockito.<Long>any())).thenReturn(ofResult);
 
         Item item = mock(Item.class);
