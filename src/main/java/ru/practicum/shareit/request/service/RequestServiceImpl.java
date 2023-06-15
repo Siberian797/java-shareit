@@ -65,7 +65,7 @@ public class RequestServiceImpl implements RequestService {
         List<Request> itemRequests = requestRepository.findByRequesterIdNot(userId, pageRequest);
 
         Map<Long, List<ItemDto>> itemsMap =
-                getItems(itemRequests.stream().map(Request::getId).collect(Collectors.toSet()));
+                getItemsMapIdToItemDtoList(itemRequests.stream().map(Request::getId).collect(Collectors.toSet()));
 
         return itemRequests.stream().map(itemRequest -> RequestMapper.toResponseDto(itemRequest, userMapper.toUserDto(itemRequest.getRequester()), itemsMap.get(itemRequest.getId()))
         ).collect(Collectors.toList());
@@ -77,7 +77,7 @@ public class RequestServiceImpl implements RequestService {
         List<Request> itemRequests = requestRepository.findByRequesterIdOrderByCreatedTimeAsc(userId);
 
         Map<Long, List<ItemDto>> itemsMap =
-                getItems(itemRequests.stream().map(Request::getId).collect(Collectors.toSet()));
+                getItemsMapIdToItemDtoList(itemRequests.stream().map(Request::getId).collect(Collectors.toSet()));
 
         return itemRequests.stream().map(itemRequest -> RequestMapper.toResponseDto(itemRequest, userMapper.toUserDto(user), itemsMap.getOrDefault(itemRequest.getId(), List.of()))).collect(Collectors.toList());
     }
@@ -93,7 +93,7 @@ public class RequestServiceImpl implements RequestService {
                 .collect(Collectors.toList());
     }
 
-    private Map<Long, List<ItemDto>> getItems(Set<Long> requestIds) {
+    private Map<Long, List<ItemDto>> getItemsMapIdToItemDtoList(Set<Long> requestIds) {
         return itemRepository.findByRequestIdInOrderByRequestCreatedTimeAsc(requestIds)
                 .stream()
                 .map(item -> itemMapper.toItemDto(item, userMapper.toUserDto(item.getOwner())))
