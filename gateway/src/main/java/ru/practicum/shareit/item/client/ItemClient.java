@@ -33,7 +33,7 @@ public class ItemClient extends BaseClient {
         return post("", userId, itemRequestDto);
     }
 
-    public ResponseEntity<Object> readItem(long userId, long itemId) {
+    public ResponseEntity<Object> readItem(long itemId, long userId) {
         return get("/" + itemId, userId);
     }
 

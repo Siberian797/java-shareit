@@ -30,7 +30,7 @@ public class RequestClient extends BaseClient {
         return post("", userId, requestDto);
     }
 
-    public ResponseEntity<Object> readRequest(long userId, long requestId) {
+    public ResponseEntity<Object> readRequest(long requestId, long userId) {
         return get("/" + requestId, userId);
     }
 

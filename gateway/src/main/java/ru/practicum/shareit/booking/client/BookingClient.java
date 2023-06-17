@@ -27,13 +27,13 @@ public class BookingClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> getBookings(long userId, BookingState state, Integer from, Integer size) {
+    public ResponseEntity<Object> getBookings(long userId, BookingState state, Integer from, Integer size, String prefix) {
         Map<String, Object> parameters = Map.of(
                 "state", state.name(),
                 "from", from,
                 "size", size
         );
-        return get("?state={state}&from={from}&size={size}", userId, parameters);
+        return get(prefix + "?state={state}&from={from}&size={size}", userId, parameters);
     }
 
 
@@ -42,7 +42,7 @@ public class BookingClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getBooking(long userId, Long bookingId) {
-        return get("/" + bookingId, userId);
+        return get("/" + userId, bookingId);
     }
 
     public ResponseEntity<Object> updateBooking(long bookingId, boolean approved, long userId) {

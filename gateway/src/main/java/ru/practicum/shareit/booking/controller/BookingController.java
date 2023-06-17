@@ -50,7 +50,7 @@ public class BookingController {
                                                                    @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
                                                                    @RequestParam(defaultValue = "10") @Positive Integer size) {
         log.info("GET-user-bookings was called.");
-        return bookingClient.getBookings(userId, state, from, size);
+        return bookingClient.getBookings(userId, state, from, size, "");
     }
 
     @GetMapping("/owner")
@@ -59,6 +59,6 @@ public class BookingController {
                                                  @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
                                                  @RequestParam(defaultValue = "10") @Positive Integer size) {
         log.info("GET-owner-bookings was called.");
-        return bookingClient.getBookings(userId, state, from, size);
+        return bookingClient.getBookings(userId, state, from, size, "/owner");
     }
 }
