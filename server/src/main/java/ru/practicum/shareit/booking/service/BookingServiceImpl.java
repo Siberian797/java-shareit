@@ -108,19 +108,28 @@ public class BookingServiceImpl implements BookingService {
         getValidUser(userId);
         LocalDateTime currentTime = DateUtils.getCurrentTime();
 
-        List<Booking> bookings = switch (state) {
-            case CURRENT -> bookingRepository.findByBookerIdAndStartLessThanAndEndGreaterThanOrderByStartDesc(userId,
-                    currentTime, currentTime, pageRequest);
-            case PAST ->
-                    bookingRepository.findByBookerIdAndEndLessThanOrderByStartDesc(userId, currentTime, pageRequest);
-            case FUTURE ->
-                    bookingRepository.findByBookerIdAndStartGreaterThanOrderByStartDesc(userId, currentTime, pageRequest);
-            case WAITING ->
-                    bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING, pageRequest);
-            case REJECTED ->
-                    bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED, pageRequest);
-            default -> bookingRepository.findByBookerIdOrderByStartDesc(userId, pageRequest);
-        };
+        List<Booking> bookings;
+
+        switch (state) {
+            case CURRENT:
+                bookings = bookingRepository.findByBookerIdAndStartLessThanAndEndGreaterThanOrderByStartDesc(userId,
+                        currentTime, currentTime, pageRequest);
+                break;
+            case PAST:
+                bookings = bookingRepository.findByBookerIdAndEndLessThanOrderByStartDesc(userId, currentTime, pageRequest);
+                break;
+            case FUTURE:
+                bookings = bookingRepository.findByBookerIdAndStartGreaterThanOrderByStartDesc(userId, currentTime, pageRequest);
+                break;
+            case WAITING:
+                bookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING, pageRequest);
+                break;
+            case REJECTED:
+                bookings = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED, pageRequest);
+                break;
+            default:
+                bookings = bookingRepository.findByBookerIdOrderByStartDesc(userId, pageRequest);
+        }
 
         return bookings.stream().map(this::getBookingResponseDto).collect(Collectors.toList());
     }
@@ -132,21 +141,30 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings;
         LocalDateTime currentTime = DateUtils.getCurrentTime();
 
-        bookings = switch (state) {
-            case CURRENT ->
-                    bookingRepository.findByItemOwnerIdAndStartLessThanAndEndGreaterThanOrderByStartDesc(ownerId,
-                            currentTime, currentTime, pageRequest);
-            case PAST ->
-                    bookingRepository.findByItemOwnerIdAndEndLessThanOrderByStartDesc(ownerId, currentTime, pageRequest);
-            case FUTURE -> bookingRepository.findByItemOwnerIdAndStartGreaterThanOrderByStartDesc(ownerId, currentTime,
-                    pageRequest);
-            case WAITING -> bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING,
-                    pageRequest);
-            case REJECTED ->
-                    bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED,
-                            pageRequest);
-            default -> bookingRepository.findByItemOwnerIdOrderByStartDesc(ownerId, pageRequest);
-        };
+        switch (state) {
+            case CURRENT:
+                bookings = bookingRepository.findByItemOwnerIdAndStartLessThanAndEndGreaterThanOrderByStartDesc(ownerId,
+                        currentTime, currentTime, pageRequest);
+                break;
+            case PAST:
+                bookings = bookingRepository.findByItemOwnerIdAndEndLessThanOrderByStartDesc(ownerId, currentTime, pageRequest);
+                break;
+            case FUTURE:
+                bookings = bookingRepository.findByItemOwnerIdAndStartGreaterThanOrderByStartDesc(ownerId, currentTime,
+                        pageRequest);
+                break;
+            case WAITING:
+                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING,
+                        pageRequest);
+                break;
+            case REJECTED:
+                bookings = bookingRepository.findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED,
+                        pageRequest);
+                break;
+            default:
+                bookings = bookingRepository.findByItemOwnerIdOrderByStartDesc(ownerId, pageRequest);
+                break;
+        }
 
         return bookings.stream().map(this::getBookingResponseDto).collect(Collectors.toList());
     }
