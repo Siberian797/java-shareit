@@ -7,6 +7,7 @@ public class CommonConstants {
     public static final String ID_OF_USER_WHO_ADDS_HEADER = "X-Sharer-User-Id";
     public static final String VALID_EMAIL_ADDRESS_REGEX = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
             + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
+    public static final String JSON_DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
     public interface Exceptions {
         String ENTITY_DUPLICATE_EXCEPTION_MESSAGE = "Entity %s has duplicated field %s";

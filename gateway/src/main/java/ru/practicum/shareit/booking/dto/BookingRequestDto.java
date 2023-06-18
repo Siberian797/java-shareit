@@ -2,7 +2,7 @@ package ru.practicum.shareit.booking.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
-import lombok.extern.jackson.Jacksonized;
+import ru.practicum.shareit.utils.CommonConstants;
 
 import javax.validation.constraints.Future;
 import javax.validation.constraints.FutureOrPresent;
@@ -12,18 +12,15 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Jacksonized
 public class BookingRequestDto {
     @NotNull
     @FutureOrPresent
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = CommonConstants.JSON_DATETIME_FORMAT)
     private LocalDateTime start;
 
     @NotNull
     @Future
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = CommonConstants.JSON_DATETIME_FORMAT)
     private LocalDateTime end;
 
     @NotNull

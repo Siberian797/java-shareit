@@ -19,8 +19,6 @@ services:
       - "9090:9090"
     depends_on:
       - db
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:h2:./db/filmorate
 
   db:
     image: postgres:14.7-alpine
@@ -29,8 +27,3 @@ services:
       - /var/lib/postgresql/data
     ports:
       - "6541:5432"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:h2:./db/filmorate
-#      POSTGRES_DB: shareit
-#      POSTGRES_USER: postgres
-#      POSTGRES_PASSWORD: postgres

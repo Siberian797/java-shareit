@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @Builder
 public class UserDto {
-    private long id;
+    private Long id;
     @NotBlank(groups = Create.class)
     private String name;
     @NotBlank(groups = {Create.class})
